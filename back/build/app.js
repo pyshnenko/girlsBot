@@ -48,6 +48,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.app = void 0;
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
+console.log(process.env.TGTOK);
 const { Telegraf } = require('telegraf');
 var jwt = require('jsonwebtoken');
 const express_1 = __importDefault(require("express"));
@@ -248,6 +249,8 @@ exports.app.get("/girls/api/sqlCheck", (req, res) => __awaiter(void 0, void 0, v
         const sqlCheck = yield sql_1.default.userCheck(userId);
         if (sqlCheck === false)
             res.sendStatus(401);
+        else if (sqlCheck !== true && sqlCheck.is_admin)
+            res.sendStatus(403);
         else
             res.json(sqlCheck);
     }
