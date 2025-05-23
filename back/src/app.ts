@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
+console.log(process.env.TGTOK)
 const { Telegraf } = require('telegraf');
 var jwt = require('jsonwebtoken');
 import express, { Express, Request, Response } from "express";
