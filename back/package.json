@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node build/app.js",
     "build": "tsc",
-    "test": "mocha build"
+    "test": "mocha build/*.test.js"
   },
   "repository": {
     "type": "git",

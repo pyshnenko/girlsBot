@@ -186,19 +186,19 @@ const options = {
   }
 }
 
-app.use('/girlsEvents/docs', swaggerUi.serve, swaggerUi.setup(null, options));
+app.use('/girls/docs', swaggerUi.serve, swaggerUi.setup(null, options));
 
-app.post('/girlsEvents/events', async (req: Request, res: Response) => {
+app.post('/girls/events', async (req: Request, res: Response) => {
     const resp = await sql.getEvent();
     res.json(resp)
 })
 
-app.post('/girlsEvents/days', async (req: Request, res: Response) => {
+app.post('/girls/days', async (req: Request, res: Response) => {
     const resp = await sql.getEvent(); //get days
     res.json(resp)
 })
 
-app.post('/girlsEvents/users', async (req: Request, res: Response) => {
+app.post('/girls/users', async (req: Request, res: Response) => {
     const resp = await sql.userSearch({});
     res.json(resp)
 })
