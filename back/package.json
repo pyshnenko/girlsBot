@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node build/app.js",
     "build": "tsc",
-    "test": "\"mocha /home/spamigor/node/girlsBot/back/build/*.test.js\""
+    "test": "\"mocha build/app.test.js\""
   },
   "repository": {
     "type": "git",
