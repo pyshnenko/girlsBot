@@ -214,7 +214,7 @@ app.get("/girls/api/sqlCheck", async (req: Request, res: Response) => {
     else {
         const sqlCheck: boolean|TGCheck = await sql.userCheck(userId);
         if (sqlCheck === false) res.sendStatus(401)
-        else if (sqlCheck !== true && sqlCheck.is_admin) res.sendStatus(403)
+        else if (sqlCheck !== true && !sqlCheck.is_admin) res.sendStatus(403)
         else res.json(sqlCheck)
     }
 })
