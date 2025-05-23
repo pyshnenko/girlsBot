@@ -193,18 +193,18 @@ app.post('/girls/events', async (req: Request, res: Response) => {
     res.json(resp)
 })
 
-app.post('/girls/days', async (req: Request, res: Response) => {
-    const resp = await sql.getEvent(); //get days
-    res.json(resp)
-})
-
-app.post('/girls/users', async (req: Request, res: Response) => {
-    const resp = await sql.userSearch({});
-    res.json(resp)
-})
-
-app.get("/girls/api/startCheck", (req: Request, res: Response) => {
-    res.sendStatus(200)
+app.get("/girls/api/users", async (req: Request, res: Response) => {
+    const userId: number = Number(req.headers.authorization?.slice(7) || 0)
+    if (!userId) res.sendStatus(401)
+    else {
+        const sqlCheck: boolean|TGCheck = await sql.userCheck(userId);
+        if (sqlCheck === false) res.sendStatus(401)
+        else if (sqlCheck !== true && !sqlCheck.is_admin) res.sendStatus(403)
+        else {
+            const result = await sql.userSearch({})
+            res.json(result)
+        }
+    }
 })
 
 app.get("/girls/api/sqlCheck", async (req: Request, res: Response) => {

@@ -223,22 +223,28 @@ const options = {
         }
     }
 };
-exports.app.use('/girlsEvents/docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(null, options));
-exports.app.post('/girlsEvents/events', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.app.use('/girls/docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(null, options));
+exports.app.post('/girls/events', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const resp = yield sql_1.default.getEvent();
     res.json(resp);
 }));
-exports.app.post('/girlsEvents/days', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const resp = yield sql_1.default.getEvent(); //get days
-    res.json(resp);
+exports.app.get("/girls/api/users", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = Number(((_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.slice(7)) || 0);
+    if (!userId)
+        res.sendStatus(401);
+    else {
+        const sqlCheck = yield sql_1.default.userCheck(userId);
+        if (sqlCheck === false)
+            res.sendStatus(401);
+        else if (sqlCheck !== true && !sqlCheck.is_admin)
+            res.sendStatus(403);
+        else {
+            const result = yield sql_1.default.userSearch({});
+            res.json(result);
+        }
+    }
 }));
-exports.app.post('/girlsEvents/users', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const resp = yield sql_1.default.userSearch({});
-    res.json(resp);
-}));
-exports.app.get("/girls/api/startCheck", (req, res) => {
-    res.sendStatus(200);
-});
 exports.app.get("/girls/api/sqlCheck", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const userId = Number(((_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.slice(7)) || 0);

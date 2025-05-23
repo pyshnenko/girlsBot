@@ -44,7 +44,7 @@
     }
   ],
   "paths": {
-    "/girls/api/users/list": {
+    "/girls/api/users": {
       "get": {
         "tags": [
           "users"
@@ -100,7 +100,7 @@
         ]
       }
     },
-    "/girls/api/users/list/{id}": {
+    "/girls/api/users/{id}": {
       "put": {
         "tags": [
           "users"
@@ -183,7 +183,7 @@
         ]
       }
     },
-    "/girls/api/users/events": {
+    "/girls/api/events": {
       "get": {
         "tags": [
           "events"
@@ -239,7 +239,7 @@
         ]
       }
     },
-    "/girls/api/users/events/{id}": {
+    "/girls/api/events/{id}": {
       "put": {
         "tags": [
           "events"
@@ -323,7 +323,7 @@
         ]
       }
     },
-    "/girls/api/users/eventsYN/{id}": {
+    "/girls/api/eventsYN/{id}": {
       "put": {
         "tags": [
           "events"
