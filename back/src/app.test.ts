@@ -1,11 +1,36 @@
-const request = require("supertest");
+import * as dotenv from 'dotenv';
+dotenv.config();
+import request from "supertest";
   
-const {app} = require("./app.js");
-  
-it("should return Hello Test", function(done: any){
+import { app } from "./app";
+
+it("test basic function", function(done: any){
       
     request(app)
-        .get("/")
-        .expect("Hello Test")
+        .get("/girls/api/startCheck")
+        .expect(200)
         .end(done);
 });
+
+describe("database test", ()=>{
+
+    it("test connection to sql", function(done: any){
+
+        request(app)
+            .get("/girls/api/sqlCheck")
+            .set('Accept', 'application/json')
+            .set('Authorization', `Bearer ${String(process.env.ADMIN)}`)
+            .expect(200)
+            .end(done)
+    });
+    
+    it("test non-auth connection to sql", function(done: any){
+
+        request(app)
+            .get("/girls/api/sqlCheck")
+            .expect(401)
+            .end(done)
+    });
+
+})
+  

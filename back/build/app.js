@@ -45,6 +45,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.app = void 0;
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 const { Telegraf } = require('telegraf');
@@ -54,7 +55,8 @@ const bot = new Telegraf(String(process.env.TGTOK));
 const telegraf_1 = require("telegraf");
 const sql_1 = __importDefault(require("./mech/sql"));
 const tg_1 = require("./consts/tg");
-const app = (0, express_1.default)();
+const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
+exports.app = (0, express_1.default)();
 bot.use((0, telegraf_1.session)());
 bot.telegram.setMyCommands([
     { command: '/start', description: 'Старт' },
@@ -157,6 +159,7 @@ bot.on('message', (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         case 'Создать событие': {
             if (typeof (checkUser) !== 'boolean' && (checkUser === null || checkUser === void 0 ? void 0 : checkUser.is_admin)) {
                 ctx.reply('Введи название события');
+                session = {};
                 session.make = 'newEvent';
                 session.await = 'name';
             }
@@ -165,6 +168,7 @@ bot.on('message', (ctx) => __awaiter(void 0, void 0, void 0, function* () {
             break;
         }
         case 'Добавить свободные даты в календарь': {
+            session = {};
             ctx.replyWithHTML('Выбери месяц', telegraf_1.Markup.inlineKeyboard([
                 telegraf_1.Markup.button.callback((0, tg_1.getMonth)((new Date()).getMonth()), 'setFreeDayMonth_0'),
                 telegraf_1.Markup.button.callback((0, tg_1.getMonth)((new Date()).getMonth() + 1), 'setFreeDayMonth_1'),
@@ -173,6 +177,7 @@ bot.on('message', (ctx) => __awaiter(void 0, void 0, void 0, function* () {
             break;
         }
         case 'Добавить занятые даты в календарь': {
+            session = {};
             ctx.replyWithHTML('Выбери месяц', telegraf_1.Markup.inlineKeyboard([
                 telegraf_1.Markup.button.callback((0, tg_1.getMonth)((new Date()).getMonth()), 'setBusyDayMonth_0'),
                 telegraf_1.Markup.button.callback((0, tg_1.getMonth)((new Date()).getMonth() + 1), 'setBusyDayMonth_1'),
@@ -210,3 +215,41 @@ bot.on('message', (ctx) => __awaiter(void 0, void 0, void 0, function* () {
 }));
 bot.launch();
 bot.catch((err) => console.log('Что-то с ботом' + String(err)));
+const options = {
+    swaggerOptions: {
+        url: 'https://spamigor.ru/demoFiles/girlsEvents/swagger.json',
+        swaggerOptions: {
+            validatorUrl: null
+        }
+    }
+};
+exports.app.use('/girlsEvents/docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(null, options));
+exports.app.post('/girlsEvents/events', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const resp = yield sql_1.default.getEvent();
+    res.json(resp);
+}));
+exports.app.post('/girlsEvents/days', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const resp = yield sql_1.default.getEvent(); //get days
+    res.json(resp);
+}));
+exports.app.post('/girlsEvents/users', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const resp = yield sql_1.default.userSearch({});
+    res.json(resp);
+}));
+exports.app.get("/girls/api/startCheck", (req, res) => {
+    res.sendStatus(200);
+});
+exports.app.get("/girls/api/sqlCheck", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = Number(((_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.slice(7)) || 0);
+    if (!userId)
+        res.sendStatus(401);
+    else {
+        const sqlCheck = yield sql_1.default.userCheck(userId);
+        if (sqlCheck === false)
+            res.sendStatus(401);
+        else
+            res.json(sqlCheck);
+    }
+}));
+exports.app.listen(8900, () => { console.log('Hello on 8900'); });
