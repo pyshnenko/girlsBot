@@ -13,13 +13,27 @@ export const connection = mysql.createConnection({
 }).promise();
 
 export const userAdd = async (id: number, admin: boolean, register: boolean, tgData:TGFrom) => {
+    console.log(register)
     try {
         let hist: any[] = await connection.query(`select * from UsersList where id = ${id}`);
-        if (!hist[0].length)
+        console.log(hist[0])
+        console.log(typeof(hist[0][0].register))
+        if (!hist[0].length) {
             await connection.query(`insert UsersList(id, isBot, first_name, last_name, username, language_code, is_premium, is_admin, register) values (${
         id}, ${tgData?.is_bot||false}, "${tgData?.first_name||'noName'}", "${tgData?.last_name||'noLname'}", "${tgData?.username||'noUname'}", "${tgData.language_code||'noCode'}", ${tgData?.is_premium===true}, ${admin}, ${register})`)
-        else if (hist[0].admin !== admin)
-            await connection.query(`update UsersList set admin = ${admin} where id = ${id}`)
+        }
+        if (hist[0].length && (Boolean(hist[0][0].admin) !== admin))
+            await connection.query(`update UsersList set is_admin = ${admin} where id = ${id}`)
+        if (hist[0].length && (!hist[0][0].register) && register) {
+            console.log('reg')
+            await connection.query(`update UsersList set register = ${register} where id = ${id}`)
+            await connection.query(`alter table eventList add id${id} int default 0`)
+        }
+        if (hist[0].length && (hist[0][0].register===1) && !register) {
+            console.log('reg')
+            await connection.query(`update UsersList set register = ${register} where id = ${id}`)
+            await connection.query(`alter table eventList drop column id${id}`)
+        }
         //console.log(hist[0]);
     } catch (e: any) {
         console.log(e)
@@ -65,6 +79,17 @@ export const userCheck = async (id: number): Promise<boolean | TGCheck> => {
     }
 }
 
+export const delUser = async (id: number): Promise<boolean> => {
+    try {
+        await connection.query(`DELETE FROM UsersList where id=${id}`)
+        await connection.query(`alter table eventList drop column id${id}`)
+        return true
+    } catch (e: any) {
+        console.log(e)
+        return e?.errno === 1091 ? true : false
+    }
+}
+
 export const askAllAdmin = async (): Promise<any> => {
     try {
         return (await connection.query(`select id from UsersList where is_admin = true`));
@@ -106,7 +131,9 @@ export const delEvent = async (id: number): Promise<boolean> => {
 
 export const getEvent = async (): Promise<eventListType[] | null> => {
     try {
-        return (await connection.query(`select * from eventList where dateevent>${dateToSql(new Date())}`))[0] as eventListType[]
+        const ask = await connection.query(`select * from eventList where dateevent>${dateToSql(new Date())}`)
+        console.log(ask)
+        return (ask)[0] as eventListType[]
     } catch (e: any) {
         console.log(e)
         return null
@@ -132,5 +159,6 @@ export default {
     addEvent,
     updEvent,
     delEvent,
-    getEvent
+    getEvent,
+    delUser
 }

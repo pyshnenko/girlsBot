@@ -502,7 +502,11 @@
             "type": "string",
             "example": "2025-09-25T00:00:00.000Z"
           },
-          "location": {
+          "place": {
+            "type": "string",
+            "example": "место проведения"
+          },
+          "link": {
             "type": "string",
             "example": "место проведения"
           },

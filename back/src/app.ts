@@ -188,9 +188,30 @@ const options = {
 
 app.use('/girls/docs', swaggerUi.serve, swaggerUi.setup(null, options));
 
-app.post('/girls/events', async (req: Request, res: Response) => {
+app.use(express.json());
+
+app.get('/girls/api/events', async (req: Request, res: Response) => {
     const resp = await sql.getEvent();
     res.json(resp)
+})
+
+app.post("/girls/api/users", async (req: Request, res: Response) => {
+    const userId: number = Number(req.headers.authorization?.slice(7) || 0)
+    if (!userId) res.sendStatus(401)
+    else {
+        console.log(req.body.tgid)
+        const sqlCheck: boolean|TGCheck = await sql.userCheck(userId);
+        if (sqlCheck === false) res.sendStatus(401)
+        else if (sqlCheck !== true && !sqlCheck.is_admin) res.sendStatus(403)
+        else if (req.body?.tgid && (req.body?.is_admin || req.body.is_admin === false)) {
+            const tgData: TGFrom = req.body;
+            const admin: boolean = req.body?.is_admin;
+            const id: number = req.body.tgid;
+            const result = await sql.userAdd(id, admin, req.body?.register || false, tgData);
+            res.json(result)
+        }
+        else res.sendStatus(418)
+    }
 })
 
 app.get("/girls/api/users", async (req: Request, res: Response) => {
@@ -201,9 +222,44 @@ app.get("/girls/api/users", async (req: Request, res: Response) => {
         if (sqlCheck === false) res.sendStatus(401)
         else if (sqlCheck !== true && !sqlCheck.is_admin) res.sendStatus(403)
         else {
+            console.log(req.body)
             const result = await sql.userSearch({})
             res.json(result)
         }
+    }
+})
+
+app.delete("/girls/api/users/:tgid", async (req: Request, res: Response) => {
+    const userId: number = Number(req.headers.authorization?.slice(7) || 0)
+    if (!userId) res.sendStatus(401)
+    else {
+        const sqlCheck: boolean|TGCheck = await sql.userCheck(userId);
+        if (sqlCheck === false) res.sendStatus(401)
+        else if (sqlCheck !== true && !sqlCheck.is_admin) res.sendStatus(403)
+        else {
+            console.log(req.body)
+            const result = await sql.delUser(Number(req.params['tgid']))
+            res.json(result)
+        }
+    }
+})
+
+app.put("/girls/api/users/:tgid", async (req: Request, res: Response) => {
+    const userId: number = Number(req.headers.authorization?.slice(7) || 0)
+    if (!userId) res.sendStatus(401)
+    else {
+        console.log(req.body)
+        const sqlCheck: boolean|TGCheck = await sql.userCheck(userId);
+        if (sqlCheck === false) res.sendStatus(401)
+        else if (sqlCheck !== true && !sqlCheck.is_admin) res.sendStatus(403)
+        else if (req.body?.tgid && (req.body?.is_admin || req.body.is_admin === false)) {
+            const tgData: TGFrom = req.body;
+            const admin: boolean = req.body?.is_admin;
+            const id: number = req.body.tgid;
+            const result = await sql.userAdd(id, admin, req.body?.register || false, tgData);
+            res.json(result)
+        }
+        else res.sendStatus(418)
     }
 })
 

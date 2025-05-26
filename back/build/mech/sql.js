@@ -45,7 +45,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getEvent = exports.delEvent = exports.updEvent = exports.addEvent = exports.askAllAdmin = exports.userCheck = exports.userSearch = exports.userAdd = exports.connection = void 0;
+exports.getEvent = exports.delEvent = exports.updEvent = exports.addEvent = exports.askAllAdmin = exports.delUser = exports.userCheck = exports.userSearch = exports.userAdd = exports.connection = void 0;
 exports.dateToSql = dateToSql;
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
@@ -58,12 +58,26 @@ exports.connection = mysql2_1.default.createConnection({
     password: String(process.env.SQLPASS)
 }).promise();
 const userAdd = (id, admin, register, tgData) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(register);
     try {
         let hist = yield exports.connection.query(`select * from UsersList where id = ${id}`);
-        if (!hist[0].length)
+        console.log(hist[0]);
+        console.log(typeof (hist[0][0].register));
+        if (!hist[0].length) {
             yield exports.connection.query(`insert UsersList(id, isBot, first_name, last_name, username, language_code, is_premium, is_admin, register) values (${id}, ${(tgData === null || tgData === void 0 ? void 0 : tgData.is_bot) || false}, "${(tgData === null || tgData === void 0 ? void 0 : tgData.first_name) || 'noName'}", "${(tgData === null || tgData === void 0 ? void 0 : tgData.last_name) || 'noLname'}", "${(tgData === null || tgData === void 0 ? void 0 : tgData.username) || 'noUname'}", "${tgData.language_code || 'noCode'}", ${(tgData === null || tgData === void 0 ? void 0 : tgData.is_premium) === true}, ${admin}, ${register})`);
-        else if (hist[0].admin !== admin)
-            yield exports.connection.query(`update UsersList set admin = ${admin} where id = ${id}`);
+        }
+        if (hist[0].length && (Boolean(hist[0][0].admin) !== admin))
+            yield exports.connection.query(`update UsersList set is_admin = ${admin} where id = ${id}`);
+        if (hist[0].length && (!hist[0][0].register) && register) {
+            console.log('reg');
+            yield exports.connection.query(`update UsersList set register = ${register} where id = ${id}`);
+            yield exports.connection.query(`alter table eventList add id${id} int default 0`);
+        }
+        if (hist[0].length && (hist[0][0].register === 1) && !register) {
+            console.log('reg');
+            yield exports.connection.query(`update UsersList set register = ${register} where id = ${id}`);
+            yield exports.connection.query(`alter table eventList drop column id${id}`);
+        }
         //console.log(hist[0]);
     }
     catch (e) {
@@ -121,6 +135,18 @@ const userCheck = (id) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.userCheck = userCheck;
+const delUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield exports.connection.query(`DELETE FROM UsersList where id=${id}`);
+        yield exports.connection.query(`alter table eventList drop column id${id}`);
+        return true;
+    }
+    catch (e) {
+        console.log(e);
+        return (e === null || e === void 0 ? void 0 : e.errno) === 1091 ? true : false;
+    }
+});
+exports.delUser = delUser;
 const askAllAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return (yield exports.connection.query(`select id from UsersList where is_admin = true`));
@@ -166,7 +192,9 @@ const delEvent = (id) => __awaiter(void 0, void 0, void 0, function* () {
 exports.delEvent = delEvent;
 const getEvent = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        return (yield exports.connection.query(`select * from eventList where dateevent>${dateToSql(new Date())}`))[0];
+        const ask = yield exports.connection.query(`select * from eventList where dateevent>${dateToSql(new Date())}`);
+        console.log(ask);
+        return (ask)[0];
     }
     catch (e) {
         console.log(e);
@@ -190,5 +218,6 @@ exports.default = {
     addEvent: exports.addEvent,
     updEvent: exports.updEvent,
     delEvent: exports.delEvent,
-    getEvent: exports.getEvent
+    getEvent: exports.getEvent,
+    delUser: exports.delUser
 };

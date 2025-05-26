@@ -224,9 +224,33 @@ const options = {
     }
 };
 exports.app.use('/girls/docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(null, options));
-exports.app.post('/girls/events', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.app.use(express_1.default.json());
+exports.app.post('/girls/api/events', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const resp = yield sql_1.default.getEvent();
     res.json(resp);
+}));
+exports.app.post("/girls/api/users", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c, _d, _e;
+    const userId = Number(((_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.slice(7)) || 0);
+    if (!userId)
+        res.sendStatus(401);
+    else {
+        console.log(req.body.tgid);
+        const sqlCheck = yield sql_1.default.userCheck(userId);
+        if (sqlCheck === false)
+            res.sendStatus(401);
+        else if (sqlCheck !== true && !sqlCheck.is_admin)
+            res.sendStatus(403);
+        else if (((_b = req.body) === null || _b === void 0 ? void 0 : _b.tgid) && (((_c = req.body) === null || _c === void 0 ? void 0 : _c.is_admin) || req.body.is_admin === false)) {
+            const tgData = req.body;
+            const admin = (_d = req.body) === null || _d === void 0 ? void 0 : _d.is_admin;
+            const id = req.body.tgid;
+            const result = yield sql_1.default.userAdd(id, admin, ((_e = req.body) === null || _e === void 0 ? void 0 : _e.register) || false, tgData);
+            res.json(result);
+        }
+        else
+            res.sendStatus(418);
+    }
 }));
 exports.app.get("/girls/api/users", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
@@ -240,9 +264,51 @@ exports.app.get("/girls/api/users", (req, res) => __awaiter(void 0, void 0, void
         else if (sqlCheck !== true && !sqlCheck.is_admin)
             res.sendStatus(403);
         else {
+            console.log(req.body);
             const result = yield sql_1.default.userSearch({});
             res.json(result);
         }
+    }
+}));
+exports.app.delete("/girls/api/users/:tgid", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = Number(((_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.slice(7)) || 0);
+    if (!userId)
+        res.sendStatus(401);
+    else {
+        const sqlCheck = yield sql_1.default.userCheck(userId);
+        if (sqlCheck === false)
+            res.sendStatus(401);
+        else if (sqlCheck !== true && !sqlCheck.is_admin)
+            res.sendStatus(403);
+        else {
+            console.log(req.body);
+            const result = yield sql_1.default.delUser(Number(req.params['tgid']));
+            res.json(result);
+        }
+    }
+}));
+exports.app.put("/girls/api/users/:tgid", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c, _d, _e;
+    const userId = Number(((_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.slice(7)) || 0);
+    if (!userId)
+        res.sendStatus(401);
+    else {
+        console.log(req.body);
+        const sqlCheck = yield sql_1.default.userCheck(userId);
+        if (sqlCheck === false)
+            res.sendStatus(401);
+        else if (sqlCheck !== true && !sqlCheck.is_admin)
+            res.sendStatus(403);
+        else if (((_b = req.body) === null || _b === void 0 ? void 0 : _b.tgid) && (((_c = req.body) === null || _c === void 0 ? void 0 : _c.is_admin) || req.body.is_admin === false)) {
+            const tgData = req.body;
+            const admin = (_d = req.body) === null || _d === void 0 ? void 0 : _d.is_admin;
+            const id = req.body.tgid;
+            const result = yield sql_1.default.userAdd(id, admin, ((_e = req.body) === null || _e === void 0 ? void 0 : _e.register) || false, tgData);
+            res.json(result);
+        }
+        else
+            res.sendStatus(418);
     }
 }));
 exports.app.get("/girls/api/sqlCheck", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
