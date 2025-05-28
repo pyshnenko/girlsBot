@@ -10,6 +10,7 @@ import { TGCheck, TGFrom } from './types/tgTypes';
 import { CronJob } from 'cron';
 import { getMonth } from './consts/tg';
 import swaggerUi from "swagger-ui-express";
+import { checkAuth } from './mech/funcs';
 
 export const app: Express = express();
 
@@ -74,7 +75,7 @@ bot.on('callback_query', async (ctx: any) => {
     ctx.deleteMessage();
     if (ctx.callbackQuery.data === 'YES') {
         if (session?.make === 'newEvent') {
-            await sql.addEvent(ctx.from.id, session?.event?.name, session?.event?.date)
+            await sql.addEvent(ctx.from.id, session?.event?.name, new Date(session?.event?.date), '', '')
             ctx.reply('добавлено')
         }
         console.log(session.event?.date)
@@ -191,19 +192,105 @@ app.use('/girls/docs', swaggerUi.serve, swaggerUi.setup(null, options));
 app.use(express.json());
 
 app.get('/girls/api/events', async (req: Request, res: Response) => {
-    const resp = await sql.getEvent();
-    res.json(resp)
+    const code = await checkAuth(req.headers.authorization || '');
+    if (code.code === 200) {
+        const from: Date = new Date(Number(req.query?.from));
+        const to: Date = new Date(Number(req.query?.to));
+        if (from.toJSON()&&to.toJSON()) {
+            const resp = await sql.getEvent(from, to);
+            console.log(resp)
+            res.json(resp)
+        }
+        else if (from.toJSON()) {
+            const resp = await sql.getEvent(from);
+            console.log('fff')
+            console.log(resp)
+            res.status(200).json(resp)
+        }
+        else res.sendStatus(418)
+    }
+    else res.sendStatus(code.code)
+})
+
+app.post('/girls/api/events', async (req: Request, res: Response) => {
+    const code = await checkAuth(req.headers.authorization || '', true);
+    if (code.code === 200) {
+        if (code.id && req.body?.name && req.body?.date && req.body.place && req.body.link) {
+            const resp = await sql.addEvent(code.id, req.body.name, new Date(req.body.date), req.body.place, req.body.link);
+            res.json(resp)
+        }
+        else res.sendStatus(418);
+    }
+    else res.sendStatus(code.code)
+})
+
+app.put('/girls/api/events/:id', async (req: Request, res: Response) => {
+    const code = await checkAuth(req.headers.authorization || '', true);
+    if (code.code === 200) {
+        if (Number(req.params['id']) && req.body?.name && req.body?.date && req.body.place && req.body.link) {
+            await sql.updEvent(Number(req.params['id']), req.body.name, new Date(req.body.date), req.body.place, req.body.link)
+            res.json(true)
+        }
+        else res.sendStatus(418);
+    }
+    else res.sendStatus(code.code)
+})
+
+app.put('/girls/api/eventsYN/:id', async (req: Request, res: Response) => {
+    const code = await checkAuth(req.headers.authorization || '');
+    if (code.code === 200) {
+        if (req.query.req && Number(req.params['id'])) {
+            await sql.YNEvent(Number(req.params['id']), req.query?.req === 'true' ? 1 : req.query.req === 'false' ? 2 : null, code.id||0)
+            res.json(true)
+        }
+        else res.sendStatus(418);
+    }
+    else res.sendStatus(code.code)
+})
+
+app.delete('/girls/api/events/:id', async (req: Request, res: Response) => {
+    const code = await checkAuth(req.headers.authorization || '', true);
+    if (code.code === 200) {
+        if (req.body?.name && req.body?.date && req.body.place && req.body.link) {
+            await sql.updEvent(Number(req.params['id']), req.body.name, new Date(req.body.date), req.body.place, req.body.link)
+            res.json(true)
+        }
+        else res.sendStatus(418);
+    }
+    else res.sendStatus(code.code)
+})
+
+app.get("/girls/api/calendar", async (req: Request, res: Response) => {
+    const code = await checkAuth(req.headers.authorization || '', true);
+    if (code.code === 200) {
+        const from: Date = new Date(Number(req.query.from))
+        const to: Date = new Date(Number(req.query.to))
+        if (from.toJSON() && to.toJSON())
+            res.json(await sql.getCalendar(from, to))
+        else res.sendStatus(418)
+    }
+    else res.sendStatus(code.code)
+})
+
+app.post("/girls/api/calendar", async (req: Request, res: Response) => {
+    const code = await checkAuth(req.headers.authorization || '', true);
+    if (code.code === 200) {
+        if (Array.isArray(req.body.freeDays) && Array.isArray(req.body.busyDays)){
+            const freeDays: Date[] = req.body.freeDays.map((item: string|number)=>new Date(item))
+            const busyDays: Date[] = req.body.busyDays.map((item: string|number)=>new Date(item))
+            await sql.setCalendar(freeDays, code.id||0, 1)
+            await sql.setCalendar(busyDays, code.id||0, 2)
+            res.json(true)
+        }
+        else res.sendStatus(418)
+    }
+    else res.sendStatus(code.code)
 })
 
 app.post("/girls/api/users", async (req: Request, res: Response) => {
-    const userId: number = Number(req.headers.authorization?.slice(7) || 0)
-    if (!userId) res.sendStatus(401)
-    else {
-        console.log(req.body.tgid)
-        const sqlCheck: boolean|TGCheck = await sql.userCheck(userId);
-        if (sqlCheck === false) res.sendStatus(401)
-        else if (sqlCheck !== true && !sqlCheck.is_admin) res.sendStatus(403)
-        else if (req.body?.tgid && (req.body?.is_admin || req.body.is_admin === false)) {
+    const code = await checkAuth(req.headers.authorization || '', true);
+    if (code.code === 200) {
+        if (req.body?.tgid && (req.body?.is_admin || req.body.is_admin === false)) {
             const tgData: TGFrom = req.body;
             const admin: boolean = req.body?.is_admin;
             const id: number = req.body.tgid;
@@ -215,49 +302,34 @@ app.post("/girls/api/users", async (req: Request, res: Response) => {
 })
 
 app.get("/girls/api/users", async (req: Request, res: Response) => {
-    const userId: number = Number(req.headers.authorization?.slice(7) || 0)
-    if (!userId) res.sendStatus(401)
-    else {
-        const sqlCheck: boolean|TGCheck = await sql.userCheck(userId);
-        if (sqlCheck === false) res.sendStatus(401)
-        else if (sqlCheck !== true && !sqlCheck.is_admin) res.sendStatus(403)
-        else {
-            console.log(req.body)
-            const result = await sql.userSearch({})
-            res.json(result)
-        }
+    const code = await checkAuth(req.headers.authorization || '');
+    if (code.code === 200) {
+        const result = await sql.userSearch({})
+        res.json(result)
     }
+    else res.sendStatus(code.code)
 })
 
 app.delete("/girls/api/users/:tgid", async (req: Request, res: Response) => {
-    const userId: number = Number(req.headers.authorization?.slice(7) || 0)
-    if (!userId) res.sendStatus(401)
-    else {
-        const sqlCheck: boolean|TGCheck = await sql.userCheck(userId);
-        if (sqlCheck === false) res.sendStatus(401)
-        else if (sqlCheck !== true && !sqlCheck.is_admin) res.sendStatus(403)
-        else {
-            console.log(req.body)
-            const result = await sql.delUser(Number(req.params['tgid']))
-            res.json(result)
-        }
+    const code = await checkAuth(req.headers.authorization || '', true);
+    if (code.code === 200) {
+        const result = await sql.delUser(Number(req.params['tgid']))
+        res.json(result)
     }
 })
 
 app.put("/girls/api/users/:tgid", async (req: Request, res: Response) => {
-    const userId: number = Number(req.headers.authorization?.slice(7) || 0)
-    if (!userId) res.sendStatus(401)
-    else {
-        console.log(req.body)
-        const sqlCheck: boolean|TGCheck = await sql.userCheck(userId);
-        if (sqlCheck === false) res.sendStatus(401)
-        else if (sqlCheck !== true && !sqlCheck.is_admin) res.sendStatus(403)
-        else if (req.body?.tgid && (req.body?.is_admin || req.body.is_admin === false)) {
-            const tgData: TGFrom = req.body;
-            const admin: boolean = req.body?.is_admin;
-            const id: number = req.body.tgid;
-            const result = await sql.userAdd(id, admin, req.body?.register || false, tgData);
-            res.json(result)
+    const code = await checkAuth(req.headers.authorization || '', true);
+    if (code.code === 200) {
+        if (req.body?.tgid && (req.body?.is_admin || req.body.is_admin === false)) {
+            if (req.body?.tgid && (req.body?.is_admin || req.body.is_admin === false)) {
+                const tgData: TGFrom = req.body;
+                const admin: boolean = req.body?.is_admin;
+                const id: number = req.body.tgid;
+                const result = await sql.userAdd(id, admin, req.body?.register || false, tgData);
+                res.json(result)
+            }
+            else res.sendStatus(418)
         }
         else res.sendStatus(418)
     }
@@ -273,5 +345,7 @@ app.get("/girls/api/sqlCheck", async (req: Request, res: Response) => {
         else res.json(sqlCheck)
     }
 })
+
+app.get("/girls/api/startCheck", (req: Request, res: Response) => {res.sendStatus(200)})
 
 app.listen(8900, ()=>{console.log('Hello on 8900')})

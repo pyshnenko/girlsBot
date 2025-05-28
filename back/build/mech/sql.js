@@ -45,7 +45,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getEvent = exports.delEvent = exports.updEvent = exports.addEvent = exports.askAllAdmin = exports.delUser = exports.userCheck = exports.userSearch = exports.userAdd = exports.connection = void 0;
+exports.setCalendar = exports.getCalendar = exports.getEvent = exports.delEvent = exports.YNEvent = exports.updEvent = exports.addEvent = exports.askAllAdmin = exports.delUser = exports.userCheck = exports.userSearch = exports.userAdd = exports.connection = void 0;
 exports.dateToSql = dateToSql;
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
@@ -62,7 +62,6 @@ const userAdd = (id, admin, register, tgData) => __awaiter(void 0, void 0, void 
     try {
         let hist = yield exports.connection.query(`select * from UsersList where id = ${id}`);
         console.log(hist[0]);
-        console.log(typeof (hist[0][0].register));
         if (!hist[0].length) {
             yield exports.connection.query(`insert UsersList(id, isBot, first_name, last_name, username, language_code, is_premium, is_admin, register) values (${id}, ${(tgData === null || tgData === void 0 ? void 0 : tgData.is_bot) || false}, "${(tgData === null || tgData === void 0 ? void 0 : tgData.first_name) || 'noName'}", "${(tgData === null || tgData === void 0 ? void 0 : tgData.last_name) || 'noLname'}", "${(tgData === null || tgData === void 0 ? void 0 : tgData.username) || 'noUname'}", "${tgData.language_code || 'noCode'}", ${(tgData === null || tgData === void 0 ? void 0 : tgData.is_premium) === true}, ${admin}, ${register})`);
         }
@@ -72,11 +71,13 @@ const userAdd = (id, admin, register, tgData) => __awaiter(void 0, void 0, void 
             console.log('reg');
             yield exports.connection.query(`update UsersList set register = ${register} where id = ${id}`);
             yield exports.connection.query(`alter table eventList add id${id} int default 0`);
+            yield exports.connection.query(`alter table dayList add id${id} int default 0`);
         }
         if (hist[0].length && (hist[0][0].register === 1) && !register) {
             console.log('reg');
             yield exports.connection.query(`update UsersList set register = ${register} where id = ${id}`);
             yield exports.connection.query(`alter table eventList drop column id${id}`);
+            yield exports.connection.query(`alter table dayList drop column id${id}`);
         }
         //console.log(hist[0]);
     }
@@ -139,6 +140,7 @@ const delUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield exports.connection.query(`DELETE FROM UsersList where id=${id}`);
         yield exports.connection.query(`alter table eventList drop column id${id}`);
+        yield exports.connection.query(`alter table dayList drop column id${id}`);
         return true;
     }
     catch (e) {
@@ -157,9 +159,9 @@ const askAllAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.askAllAdmin = askAllAdmin;
-const addEvent = (authorID, namestring, dateevent) => __awaiter(void 0, void 0, void 0, function* () {
+const addEvent = (authorID, namestring, dateevent, place, linc) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield exports.connection.query(`insert eventList(authorID, namestring, dateevent) values(${authorID}, "${namestring}", "${dateevent}")`);
+        yield exports.connection.query(`insert eventList(authorID, namestring, dateevent, place, linc) values(${authorID}, "${namestring}", "${dateToSql(dateevent)}", "${place}", "${linc}")`);
         return true;
     }
     catch (e) {
@@ -168,9 +170,9 @@ const addEvent = (authorID, namestring, dateevent) => __awaiter(void 0, void 0, 
     }
 });
 exports.addEvent = addEvent;
-const updEvent = (id, authorID, namestring, dateevent) => __awaiter(void 0, void 0, void 0, function* () {
+const updEvent = (id, namestring, dateevent, place, linc) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield exports.connection.query(`UPDATE eventList set authorID=${authorID}, namestring="${namestring}", dateevent="${dateevent}" where id=${id}`);
+        yield exports.connection.query(`UPDATE eventList set namestring="${namestring}", dateevent="${dateToSql(dateevent)}", place="${place}", linc="${linc}" where id=${id}`);
         return true;
     }
     catch (e) {
@@ -179,6 +181,24 @@ const updEvent = (id, authorID, namestring, dateevent) => __awaiter(void 0, void
     }
 });
 exports.updEvent = updEvent;
+const YNEvent = (id, result, tgid) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const event = (yield exports.connection.query(`SELECT * from eventList where id=${id}`))[0];
+        console.log(event);
+        if (event[0].hasOwnProperty(`id${tgid}`))
+            yield exports.connection.query(`UPDATE eventList set id${tgid}=${result} where id=${id}`);
+        else {
+            yield exports.connection.query(`alter table eventList add id${tgid} int default 0`);
+            yield exports.connection.query(`UPDATE eventList set id${tgid}=${result} where id=${id}`);
+        }
+        return true;
+    }
+    catch (e) {
+        console.log(e);
+        return false;
+    }
+});
+exports.YNEvent = YNEvent;
 const delEvent = (id) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield exports.connection.query(`DELETE FROM eventList where id=${id}`);
@@ -190,18 +210,50 @@ const delEvent = (id) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.delEvent = delEvent;
-const getEvent = () => __awaiter(void 0, void 0, void 0, function* () {
+const getEvent = (from, to) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const ask = yield exports.connection.query(`select * from eventList where dateevent>${dateToSql(new Date())}`);
-        console.log(ask);
+        const ask = yield exports.connection.query(to ? `select * from eventList where dateevent>${dateToSql(from)} and dateevent<${dateToSql(to)}` :
+            `select * from eventList where dateevent>${dateToSql(from)}`);
+        //console.log(ask)
         return (ask)[0];
     }
     catch (e) {
-        console.log(e);
+        console.log('err');
         return null;
     }
 });
 exports.getEvent = getEvent;
+const getCalendar = (from, to) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        return (yield exports.connection.query(`select * from dayList where evtDate>=${dateToSql(from)} and evtDate<=${dateToSql(to)}`))[0];
+    }
+    catch (e) {
+        return null;
+    }
+});
+exports.getCalendar = getCalendar;
+const setCalendar = (date, id, status) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        for (let i in date) {
+            let dateNotes = (yield exports.connection.query(`select * from dayList where evtDate=${dateToSql(date[i])}`))[0];
+            if (!dateNotes.length) {
+                yield exports.connection.query(`insert dayList(evtDate, id${id}) values`);
+                dateNotes = (yield exports.connection.query(`select * from dayList where evtDate=${dateToSql(date[i])}`))[0];
+            }
+            if (dateNotes.length && dateNotes[0].hasOwnProperty(`id${id}`))
+                yield exports.connection.query(`update dayList set id${id}=${status} where id=${dateNotes[0].id}`);
+            else if (dateNotes.length && !dateNotes[0].hasOwnProperty(`id${id}`)) {
+                yield exports.connection.query(`alter table dayList add id${id} int default 0`);
+                yield exports.connection.query(`update dayList set id${id}=${status} where id=${dateNotes[0].id}`);
+            }
+        }
+        return true;
+    }
+    catch (e) {
+        return false;
+    }
+});
+exports.setCalendar = setCalendar;
 //daylist {
 //  id: number,
 //  tgId: number,
@@ -219,5 +271,8 @@ exports.default = {
     updEvent: exports.updEvent,
     delEvent: exports.delEvent,
     getEvent: exports.getEvent,
-    delUser: exports.delUser
+    delUser: exports.delUser,
+    YNEvent: exports.YNEvent,
+    getCalendar: exports.getCalendar,
+    setCalendar: exports.setCalendar
 };

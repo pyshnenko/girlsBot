@@ -56,6 +56,7 @@ const telegraf_1 = require("telegraf");
 const sql_1 = __importDefault(require("./mech/sql"));
 const tg_1 = require("./consts/tg");
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
+const funcs_1 = require("./mech/funcs");
 exports.app = (0, express_1.default)();
 bot.use((0, telegraf_1.session)());
 bot.telegram.setMyCommands([
@@ -119,7 +120,7 @@ bot.on('callback_query', (ctx) => __awaiter(void 0, void 0, void 0, function* ()
     ctx.deleteMessage();
     if (ctx.callbackQuery.data === 'YES') {
         if ((session === null || session === void 0 ? void 0 : session.make) === 'newEvent') {
-            yield sql_1.default.addEvent(ctx.from.id, (_a = session === null || session === void 0 ? void 0 : session.event) === null || _a === void 0 ? void 0 : _a.name, (_b = session === null || session === void 0 ? void 0 : session.event) === null || _b === void 0 ? void 0 : _b.date);
+            yield sql_1.default.addEvent(ctx.from.id, (_a = session === null || session === void 0 ? void 0 : session.event) === null || _a === void 0 ? void 0 : _a.name, new Date((_b = session === null || session === void 0 ? void 0 : session.event) === null || _b === void 0 ? void 0 : _b.date), '', '');
             ctx.reply('добавлено');
         }
         console.log((_c = session.event) === null || _c === void 0 ? void 0 : _c.date);
@@ -225,27 +226,123 @@ const options = {
 };
 exports.app.use('/girls/docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(null, options));
 exports.app.use(express_1.default.json());
+exports.app.get('/girls/api/events', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    const code = yield (0, funcs_1.checkAuth)(req.headers.authorization || '');
+    if (code.code === 200) {
+        const from = new Date(Number((_a = req.query) === null || _a === void 0 ? void 0 : _a.from));
+        const to = new Date(Number((_b = req.query) === null || _b === void 0 ? void 0 : _b.to));
+        if (from.toJSON() && to.toJSON()) {
+            const resp = yield sql_1.default.getEvent(from, to);
+            console.log(resp);
+            res.json(resp);
+        }
+        else if (from.toJSON()) {
+            const resp = yield sql_1.default.getEvent(from);
+            console.log('fff');
+            console.log(resp);
+            res.status(200).json(resp);
+        }
+        else
+            res.sendStatus(418);
+    }
+    else
+        res.sendStatus(code.code);
+}));
 exports.app.post('/girls/api/events', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const resp = yield sql_1.default.getEvent();
-    res.json(resp);
+    var _a, _b;
+    const code = yield (0, funcs_1.checkAuth)(req.headers.authorization || '', true);
+    if (code.code === 200) {
+        if (code.id && ((_a = req.body) === null || _a === void 0 ? void 0 : _a.name) && ((_b = req.body) === null || _b === void 0 ? void 0 : _b.date) && req.body.place && req.body.link) {
+            const resp = yield sql_1.default.addEvent(code.id, req.body.name, new Date(req.body.date), req.body.place, req.body.link);
+            res.json(resp);
+        }
+        else
+            res.sendStatus(418);
+    }
+    else
+        res.sendStatus(code.code);
+}));
+exports.app.put('/girls/api/events/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    const code = yield (0, funcs_1.checkAuth)(req.headers.authorization || '', true);
+    if (code.code === 200) {
+        if (Number(req.params['id']) && ((_a = req.body) === null || _a === void 0 ? void 0 : _a.name) && ((_b = req.body) === null || _b === void 0 ? void 0 : _b.date) && req.body.place && req.body.link) {
+            yield sql_1.default.updEvent(Number(req.params['id']), req.body.name, new Date(req.body.date), req.body.place, req.body.link);
+            res.json(true);
+        }
+        else
+            res.sendStatus(418);
+    }
+    else
+        res.sendStatus(code.code);
+}));
+exports.app.put('/girls/api/eventsYN/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const code = yield (0, funcs_1.checkAuth)(req.headers.authorization || '');
+    if (code.code === 200) {
+        if (req.query.req && Number(req.params['id'])) {
+            yield sql_1.default.YNEvent(Number(req.params['id']), ((_a = req.query) === null || _a === void 0 ? void 0 : _a.req) === 'true' ? 1 : req.query.req === 'false' ? 2 : null, code.id || 0);
+            res.json(true);
+        }
+        else
+            res.sendStatus(418);
+    }
+    else
+        res.sendStatus(code.code);
+}));
+exports.app.delete('/girls/api/events/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    const code = yield (0, funcs_1.checkAuth)(req.headers.authorization || '', true);
+    if (code.code === 200) {
+        if (((_a = req.body) === null || _a === void 0 ? void 0 : _a.name) && ((_b = req.body) === null || _b === void 0 ? void 0 : _b.date) && req.body.place && req.body.link) {
+            yield sql_1.default.updEvent(Number(req.params['id']), req.body.name, new Date(req.body.date), req.body.place, req.body.link);
+            res.json(true);
+        }
+        else
+            res.sendStatus(418);
+    }
+    else
+        res.sendStatus(code.code);
+}));
+exports.app.get("/girls/api/calendar", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const code = yield (0, funcs_1.checkAuth)(req.headers.authorization || '', true);
+    if (code.code === 200) {
+        const from = new Date(Number(req.query.from));
+        const to = new Date(Number(req.query.to));
+        if (from.toJSON() && to.toJSON())
+            res.json(yield sql_1.default.getCalendar(from, to));
+        else
+            res.sendStatus(418);
+    }
+    else
+        res.sendStatus(code.code);
+}));
+exports.app.post("/girls/api/calendar", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const code = yield (0, funcs_1.checkAuth)(req.headers.authorization || '', true);
+    if (code.code === 200) {
+        if (Array.isArray(req.body.freeDays) && Array.isArray(req.body.busyDays)) {
+            const freeDays = req.body.freeDays.map((item) => new Date(item));
+            const busyDays = req.body.busyDays.map((item) => new Date(item));
+            yield sql_1.default.setCalendar(freeDays, code.id || 0, 1);
+            yield sql_1.default.setCalendar(busyDays, code.id || 0, 2);
+            res.json(true);
+        }
+        else
+            res.sendStatus(418);
+    }
+    else
+        res.sendStatus(code.code);
 }));
 exports.app.post("/girls/api/users", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e;
-    const userId = Number(((_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.slice(7)) || 0);
-    if (!userId)
-        res.sendStatus(401);
-    else {
-        console.log(req.body.tgid);
-        const sqlCheck = yield sql_1.default.userCheck(userId);
-        if (sqlCheck === false)
-            res.sendStatus(401);
-        else if (sqlCheck !== true && !sqlCheck.is_admin)
-            res.sendStatus(403);
-        else if (((_b = req.body) === null || _b === void 0 ? void 0 : _b.tgid) && (((_c = req.body) === null || _c === void 0 ? void 0 : _c.is_admin) || req.body.is_admin === false)) {
+    var _a, _b, _c, _d;
+    const code = yield (0, funcs_1.checkAuth)(req.headers.authorization || '', true);
+    if (code.code === 200) {
+        if (((_a = req.body) === null || _a === void 0 ? void 0 : _a.tgid) && (((_b = req.body) === null || _b === void 0 ? void 0 : _b.is_admin) || req.body.is_admin === false)) {
             const tgData = req.body;
-            const admin = (_d = req.body) === null || _d === void 0 ? void 0 : _d.is_admin;
+            const admin = (_c = req.body) === null || _c === void 0 ? void 0 : _c.is_admin;
             const id = req.body.tgid;
-            const result = yield sql_1.default.userAdd(id, admin, ((_e = req.body) === null || _e === void 0 ? void 0 : _e.register) || false, tgData);
+            const result = yield sql_1.default.userAdd(id, admin, ((_d = req.body) === null || _d === void 0 ? void 0 : _d.register) || false, tgData);
             res.json(result);
         }
         else
@@ -253,59 +350,35 @@ exports.app.post("/girls/api/users", (req, res) => __awaiter(void 0, void 0, voi
     }
 }));
 exports.app.get("/girls/api/users", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    const userId = Number(((_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.slice(7)) || 0);
-    if (!userId)
-        res.sendStatus(401);
-    else {
-        const sqlCheck = yield sql_1.default.userCheck(userId);
-        if (sqlCheck === false)
-            res.sendStatus(401);
-        else if (sqlCheck !== true && !sqlCheck.is_admin)
-            res.sendStatus(403);
-        else {
-            console.log(req.body);
-            const result = yield sql_1.default.userSearch({});
-            res.json(result);
-        }
+    const code = yield (0, funcs_1.checkAuth)(req.headers.authorization || '');
+    if (code.code === 200) {
+        const result = yield sql_1.default.userSearch({});
+        res.json(result);
     }
+    else
+        res.sendStatus(code.code);
 }));
 exports.app.delete("/girls/api/users/:tgid", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    const userId = Number(((_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.slice(7)) || 0);
-    if (!userId)
-        res.sendStatus(401);
-    else {
-        const sqlCheck = yield sql_1.default.userCheck(userId);
-        if (sqlCheck === false)
-            res.sendStatus(401);
-        else if (sqlCheck !== true && !sqlCheck.is_admin)
-            res.sendStatus(403);
-        else {
-            console.log(req.body);
-            const result = yield sql_1.default.delUser(Number(req.params['tgid']));
-            res.json(result);
-        }
+    const code = yield (0, funcs_1.checkAuth)(req.headers.authorization || '', true);
+    if (code.code === 200) {
+        const result = yield sql_1.default.delUser(Number(req.params['tgid']));
+        res.json(result);
     }
 }));
 exports.app.put("/girls/api/users/:tgid", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e;
-    const userId = Number(((_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.slice(7)) || 0);
-    if (!userId)
-        res.sendStatus(401);
-    else {
-        console.log(req.body);
-        const sqlCheck = yield sql_1.default.userCheck(userId);
-        if (sqlCheck === false)
-            res.sendStatus(401);
-        else if (sqlCheck !== true && !sqlCheck.is_admin)
-            res.sendStatus(403);
-        else if (((_b = req.body) === null || _b === void 0 ? void 0 : _b.tgid) && (((_c = req.body) === null || _c === void 0 ? void 0 : _c.is_admin) || req.body.is_admin === false)) {
-            const tgData = req.body;
-            const admin = (_d = req.body) === null || _d === void 0 ? void 0 : _d.is_admin;
-            const id = req.body.tgid;
-            const result = yield sql_1.default.userAdd(id, admin, ((_e = req.body) === null || _e === void 0 ? void 0 : _e.register) || false, tgData);
-            res.json(result);
+    var _a, _b, _c, _d, _e, _f;
+    const code = yield (0, funcs_1.checkAuth)(req.headers.authorization || '', true);
+    if (code.code === 200) {
+        if (((_a = req.body) === null || _a === void 0 ? void 0 : _a.tgid) && (((_b = req.body) === null || _b === void 0 ? void 0 : _b.is_admin) || req.body.is_admin === false)) {
+            if (((_c = req.body) === null || _c === void 0 ? void 0 : _c.tgid) && (((_d = req.body) === null || _d === void 0 ? void 0 : _d.is_admin) || req.body.is_admin === false)) {
+                const tgData = req.body;
+                const admin = (_e = req.body) === null || _e === void 0 ? void 0 : _e.is_admin;
+                const id = req.body.tgid;
+                const result = yield sql_1.default.userAdd(id, admin, ((_f = req.body) === null || _f === void 0 ? void 0 : _f.register) || false, tgData);
+                res.json(result);
+            }
+            else
+                res.sendStatus(418);
         }
         else
             res.sendStatus(418);
@@ -326,4 +399,5 @@ exports.app.get("/girls/api/sqlCheck", (req, res) => __awaiter(void 0, void 0, v
             res.json(sqlCheck);
     }
 }));
+exports.app.get("/girls/api/startCheck", (req, res) => { res.sendStatus(200); });
 exports.app.listen(8900, () => { console.log('Hello on 8900'); });

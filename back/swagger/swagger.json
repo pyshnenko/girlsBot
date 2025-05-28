@@ -191,6 +191,24 @@
         "summary": "Запрос списка событий",
         "description": "полный перечень событий",
         "operationId": "eventsList",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": 1748434277243
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": "2025-05-28T12:13:02.259Z"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Выполнено"
@@ -379,6 +397,26 @@
         "summary": "Запрос календаря",
         "description": "календарь",
         "operationId": "calendar",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "example": 1748438470916
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "example": 1751376070916
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Выполнено"
@@ -411,9 +449,8 @@
                     "items": {
                       "type": "number",
                       "example": [
-                        1,
-                        2,
-                        3
+                        1748438470916,
+                        1748611270916
                       ]
                     }
                   },
@@ -422,8 +459,7 @@
                     "items": {
                       "type": "number",
                       "example": [
-                        4,
-                        5
+                        1748697670916
                       ]
                     }
                   }
@@ -494,10 +530,6 @@
             "type": "string",
             "example": "название события"
           },
-          "fullText": {
-            "type": "string",
-            "example": "описание события"
-          },
           "date": {
             "type": "string",
             "example": "2025-09-25T00:00:00.000Z"
@@ -509,14 +541,6 @@
           "link": {
             "type": "string",
             "example": "место проведения"
-          },
-          "users": {
-            "type": "array",
-            "description": "список пользователей, подтвердивших участие",
-            "items": {
-              "type": "number",
-              "example": 123321
-            }
           }
         }
       }
