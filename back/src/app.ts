@@ -332,7 +332,7 @@ app.put("/girls/api/users/:tgid", async (req: Request, res: Response) => {
     const code = await checkAuth(req.headers.authorization || '', true);
     if (code.code === 200) {
         console.log(req.body)
-        if (req.body?.tgid && (req.body?.is_admin || req.body.is_admin === false)) {
+        if (req.body?.tgid && (req.body?.is_admin || req.body.is_admin === false || req.body.is_admin === 0)) {
             const tgData: TGFrom = req.body;
             const admin: boolean = req.body?.is_admin;
             const id: number = req.body.tgid;
