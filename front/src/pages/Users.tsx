@@ -92,8 +92,9 @@ export default function Users(props: PropsType):React.JSX.Element {
                               >
                                 <TableCell sx={{padding: 1}}>{item.username+'\n'+item.first_name+'\n'+item.last_name}</TableCell>
                                 <TableCell sx={{padding: 0}}>                              
-                                    <IconButton sx={{margin: 0}} color="success" onClick={()=>{
-                                        tg.sendData(JSON.stringify({do: 'upd', id: item.id, is_admin: !item.is_admin}))
+                                    <IconButton sx={{margin: 0}} color="success" onClick={async ()=>{
+                                        await api.users.upd(item.id, {...item, register: true, is_admin: !item.is_admin})
+                                        updData();
                                     }}>{item.is_admin?<ArrowDownwardIcon />:<ArrowUpwardIcon />}</IconButton>
                                     <IconButton sx={{margin: 0}} color="error" onClick={async ()=>{
                                         await api.users.delete(item.id);
