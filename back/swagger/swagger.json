@@ -448,19 +448,14 @@
                     "type": "array",
                     "items": {
                       "type": "number",
-                      "example": [
-                        1748438470916,
-                        1748611270916
-                      ]
+                      "example": 1748438470916
                     }
                   },
                   "busyDays": {
                     "type": "array",
                     "items": {
                       "type": "number",
-                      "example": [
-                        1748697670916
-                      ]
+                      "example": 1748697670916
                     }
                   }
                 }

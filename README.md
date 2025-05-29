@@ -2,3 +2,6 @@
 
 ## swagger 
 https://spamigor.ru/girls/docs/
+
+## бот
+@GirlsCoordinate_bot

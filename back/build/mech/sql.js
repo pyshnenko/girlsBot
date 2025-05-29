@@ -212,8 +212,8 @@ const delEvent = (id) => __awaiter(void 0, void 0, void 0, function* () {
 exports.delEvent = delEvent;
 const getEvent = (from, to) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const ask = yield exports.connection.query(to ? `select * from eventList where dateevent>${dateToSql(from)} and dateevent<${dateToSql(to)}` :
-            `select * from eventList where dateevent>${dateToSql(from)}`);
+        const ask = yield exports.connection.query(to ? `select * from eventList where dateevent>"${dateToSql(from)}" and dateevent<"${dateToSql(to)} order by dateevent"` :
+            `select * from eventList where dateevent>"${dateToSql(from)}"`);
         //console.log(ask)
         return (ask)[0];
     }
@@ -225,7 +225,7 @@ const getEvent = (from, to) => __awaiter(void 0, void 0, void 0, function* () {
 exports.getEvent = getEvent;
 const getCalendar = (from, to) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        return (yield exports.connection.query(`select * from dayList where evtDate>=${dateToSql(from)} and evtDate<=${dateToSql(to)}`))[0];
+        return (yield exports.connection.query(`select * from dayList where evtDate>="${dateToSql(from)}" and evtDate<="${dateToSql(to)}" order by evtDate`))[0];
     }
     catch (e) {
         return null;
@@ -233,16 +233,26 @@ const getCalendar = (from, to) => __awaiter(void 0, void 0, void 0, function* ()
 });
 exports.getCalendar = getCalendar;
 const setCalendar = (date, id, status) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('date');
+    console.log(date);
     try {
-        for (let i in date) {
-            let dateNotes = (yield exports.connection.query(`select * from dayList where evtDate=${dateToSql(date[i])}`))[0];
+        for (let i = 0; i < date.length; i++) {
+            console.log(i);
+            let dateNotes = (yield exports.connection.query(`select * from dayList where evtDate="${dateToSql(new Date(date[i]))}"`))[0];
+            console.log(dateNotes);
             if (!dateNotes.length) {
-                yield exports.connection.query(`insert dayList(evtDate, id${id}) values`);
-                dateNotes = (yield exports.connection.query(`select * from dayList where evtDate=${dateToSql(date[i])}`))[0];
+                console.log('length = 0');
+                yield exports.connection.query(`insert dayList(evtDate) values("${dateToSql(new Date(date[i]))}")`);
+                console.log('length = 01');
+                dateNotes = (yield exports.connection.query(`select * from dayList where evtDate="${dateToSql(new Date(date[i]))}"`))[0];
+                console.log(dateNotes);
             }
-            if (dateNotes.length && dateNotes[0].hasOwnProperty(`id${id}`))
+            if (dateNotes.length && dateNotes[0].hasOwnProperty(`id${id}`)) {
+                console.log('length != 0');
                 yield exports.connection.query(`update dayList set id${id}=${status} where id=${dateNotes[0].id}`);
+            }
             else if (dateNotes.length && !dateNotes[0].hasOwnProperty(`id${id}`)) {
+                console.log('add column');
                 yield exports.connection.query(`alter table dayList add id${id} int default 0`);
                 yield exports.connection.query(`update dayList set id${id}=${status} where id=${dateNotes[0].id}`);
             }

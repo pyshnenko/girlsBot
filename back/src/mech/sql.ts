@@ -151,8 +151,8 @@ export const delEvent = async (id: number): Promise<boolean> => {
 export const getEvent = async (from: Date, to?: Date): Promise<eventListType[] | null> => {
     try {
         const ask = await connection.query(
-            to ? `select * from eventList where dateevent>${dateToSql(from)} and dateevent<${dateToSql(to)}` : 
-            `select * from eventList where dateevent>${dateToSql(from)}`)
+            to ? `select * from eventList where dateevent>"${dateToSql(from)}" and dateevent<"${dateToSql(to)} order by dateevent"` : 
+            `select * from eventList where dateevent>"${dateToSql(from)}"`)
         //console.log(ask)
         return (ask)[0] as eventListType[]
     } catch (e: any) {
@@ -163,24 +163,34 @@ export const getEvent = async (from: Date, to?: Date): Promise<eventListType[] |
 
 export const getCalendar = async (from: Date, to: Date): Promise<calendar[] | null> => {
     try {
-        return (await connection.query(`select * from dayList where evtDate>=${dateToSql(from)} and evtDate<=${dateToSql(to)}`))[0] as calendar[]
+        return (await connection.query(`select * from dayList where evtDate>="${dateToSql(from)}" and evtDate<="${dateToSql(to)}" order by evtDate`))[0] as calendar[]
     }
     catch (e: any) {
         return null
     }
 }
 
-export const setCalendar = async (date: Date[], id: number, status: 1|2|null): Promise<boolean> => {
+export const setCalendar = async (date: number[], id: number, status: 1|2|null): Promise<boolean> => {
+    console.log('date')
+    console.log(date)
     try {
-        for (let i in date) {
-            let dateNotes: calendar[] = (await connection.query(`select * from dayList where evtDate=${dateToSql(date[i])}`))[0] as calendar[]
+        for (let i = 0; i<date.length; i++) {
+            console.log(i)
+            let dateNotes: calendar[] = (await connection.query(`select * from dayList where evtDate="${dateToSql(new Date(date[i]))}"`))[0] as calendar[]
+            console.log(dateNotes)
             if (!dateNotes.length) {
-                await connection.query(`insert dayList(evtDate, id${id}) values`)
-                dateNotes = (await connection.query(`select * from dayList where evtDate=${dateToSql(date[i])}`))[0] as calendar[]
+                console.log('length = 0')
+                await connection.query(`insert dayList(evtDate) values("${dateToSql(new Date(date[i]))}")`)
+                console.log('length = 01')
+                dateNotes = (await connection.query(`select * from dayList where evtDate="${dateToSql(new Date(date[i]))}"`))[0] as any[]
+                console.log(dateNotes)
             }
-            if (dateNotes.length && dateNotes[0].hasOwnProperty(`id${id}`))
+            if (dateNotes.length && dateNotes[0].hasOwnProperty(`id${id}`)) {
+                console.log('length != 0')
                 await connection.query(`update dayList set id${id}=${status} where id=${dateNotes[0].id}`)
+            }
             else if (dateNotes.length && !dateNotes[0].hasOwnProperty(`id${id}`)) {
+                console.log('add column')
                 await connection.query(`alter table dayList add id${id} int default 0`)
                 await connection.query(`update dayList set id${id}=${status} where id=${dateNotes[0].id}`)
             }

@@ -123,6 +123,16 @@ bot.on('callback_query', (ctx) => __awaiter(void 0, void 0, void 0, function* ()
             yield sql_1.default.addEvent(ctx.from.id, (_a = session === null || session === void 0 ? void 0 : session.event) === null || _a === void 0 ? void 0 : _a.name, new Date((_b = session === null || session === void 0 ? void 0 : session.event) === null || _b === void 0 ? void 0 : _b.date), '', '');
             ctx.reply('добавлено');
         }
+        else if (((session === null || session === void 0 ? void 0 : session.make) === 'freeDay') || ((session === null || session === void 0 ? void 0 : session.make) === 'busyDay')) {
+            let days = [];
+            if (Array.isArray(session === null || session === void 0 ? void 0 : session.result)) {
+                days = session.result.map((item) => Number(new Date(`${session.date.year}-${session.date.month}-${item}T03:00:01.003Z`)));
+                yield sql_1.default.setCalendar(days, ctx.from.id, session.make === 'freeDay' ? 1 : (session === null || session === void 0 ? void 0 : session.make) === 'busyDay' ? 2 : null);
+                ctx.reply('Выполнено');
+            }
+            else
+                ctx.reply('что-то пошло не так');
+        }
         console.log((_c = session.event) === null || _c === void 0 ? void 0 : _c.date);
         session = {};
     }
@@ -204,6 +214,7 @@ bot.on('message', (ctx) => __awaiter(void 0, void 0, void 0, function* () {
                 const dayArray = ctx.message.text.replaceAll(' ', ',').split(',').filter((item) => Number(item));
                 let mess = '';
                 console.log(session);
+                session.result = dayArray;
                 dayArray.forEach((item) => { mess += (new Date(`${session.date.year}-${session.date.month}-${item}`).toLocaleDateString()) + '\n'; });
                 ctx.replyWithHTML(mess, telegraf_1.Markup.inlineKeyboard([
                     telegraf_1.Markup.button.callback('Да', 'YES'),
@@ -292,15 +303,10 @@ exports.app.put('/girls/api/eventsYN/:id', (req, res) => __awaiter(void 0, void 
         res.sendStatus(code.code);
 }));
 exports.app.delete('/girls/api/events/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
     const code = yield (0, funcs_1.checkAuth)(req.headers.authorization || '', true);
     if (code.code === 200) {
-        if (((_a = req.body) === null || _a === void 0 ? void 0 : _a.name) && ((_b = req.body) === null || _b === void 0 ? void 0 : _b.date) && req.body.place && req.body.link) {
-            yield sql_1.default.updEvent(Number(req.params['id']), req.body.name, new Date(req.body.date), req.body.place, req.body.link);
-            res.json(true);
-        }
-        else
-            res.sendStatus(418);
+        yield sql_1.default.delEvent(Number(req.params['id']));
+        res.json(true);
     }
     else
         res.sendStatus(code.code);
@@ -311,7 +317,10 @@ exports.app.get("/girls/api/calendar", (req, res) => __awaiter(void 0, void 0, v
         const from = new Date(Number(req.query.from));
         const to = new Date(Number(req.query.to));
         if (from.toJSON() && to.toJSON())
-            res.json(yield sql_1.default.getCalendar(from, to));
+            res.json({
+                calendar: yield sql_1.default.getCalendar(from, to),
+                users: yield sql_1.default.userSearch({})
+            });
         else
             res.sendStatus(418);
     }
@@ -322,10 +331,9 @@ exports.app.post("/girls/api/calendar", (req, res) => __awaiter(void 0, void 0, 
     const code = yield (0, funcs_1.checkAuth)(req.headers.authorization || '', true);
     if (code.code === 200) {
         if (Array.isArray(req.body.freeDays) && Array.isArray(req.body.busyDays)) {
-            const freeDays = req.body.freeDays.map((item) => new Date(item));
-            const busyDays = req.body.busyDays.map((item) => new Date(item));
-            yield sql_1.default.setCalendar(freeDays, code.id || 0, 1);
-            yield sql_1.default.setCalendar(busyDays, code.id || 0, 2);
+            console.log(req.body.freeDays);
+            yield sql_1.default.setCalendar(req.body.freeDays, code.id || 0, 1);
+            yield sql_1.default.setCalendar(req.body.busyDays, code.id || 0, 2);
             res.json(true);
         }
         else

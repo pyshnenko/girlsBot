@@ -22,6 +22,7 @@ bot.telegram.setMyCommands([
 
 bot.start(async (ctx: any) => {
     console.log('start')
+    ctx.session = {};
     let checkUser: boolean | TGCheck = await sql.userCheck(ctx.from.id);
     console.log(checkUser);
     if (checkUser === false) {
@@ -77,6 +78,15 @@ bot.on('callback_query', async (ctx: any) => {
         if (session?.make === 'newEvent') {
             await sql.addEvent(ctx.from.id, session?.event?.name, new Date(session?.event?.date), '', '')
             ctx.reply('добавлено')
+        }
+        else if ((session?.make === 'freeDay') || (session?.make === 'busyDay')) {
+            let days: number[] = []
+            if (Array.isArray(session?.result)) {
+                days = session.result.map((item: string)=>Number(new Date(`${session.date.year}-${session.date.month}-${item}T03:00:01.003Z`)))
+                await sql.setCalendar(days, ctx.from.id, session.make === 'freeDay'?1:session?.make === 'busyDay'?2:null)
+                ctx.reply('Выполнено')
+            }
+            else ctx.reply('что-то пошло не так')
         }
         console.log(session.event?.date)
         session = {}
@@ -161,6 +171,7 @@ bot.on('message', async (ctx: {message: {text: string}, from: {id: number}, sess
                 const dayArray: string[] = ctx.message.text.replaceAll(' ', ',').split(',').filter((item: string)=>Number(item));
                 let mess = '';
                 console.log(session)
+                session.result = dayArray;
                 dayArray.forEach((item: string) => {mess+=(new Date(`${session.date.year}-${session.date.month}-${item}`).toLocaleDateString())+'\n'})
                 ctx.replyWithHTML(mess,
                     Markup.inlineKeyboard([
@@ -251,11 +262,8 @@ app.put('/girls/api/eventsYN/:id', async (req: Request, res: Response) => {
 app.delete('/girls/api/events/:id', async (req: Request, res: Response) => {
     const code = await checkAuth(req.headers.authorization || '', true);
     if (code.code === 200) {
-        if (req.body?.name && req.body?.date && req.body.place && req.body.link) {
-            await sql.updEvent(Number(req.params['id']), req.body.name, new Date(req.body.date), req.body.place, req.body.link)
-            res.json(true)
-        }
-        else res.sendStatus(418);
+        await sql.delEvent(Number(req.params['id']))
+        res.json(true)
     }
     else res.sendStatus(code.code)
 })
@@ -266,7 +274,10 @@ app.get("/girls/api/calendar", async (req: Request, res: Response) => {
         const from: Date = new Date(Number(req.query.from))
         const to: Date = new Date(Number(req.query.to))
         if (from.toJSON() && to.toJSON())
-            res.json(await sql.getCalendar(from, to))
+            res.json({
+                calendar: await sql.getCalendar(from, to),
+                users: await sql.userSearch({})
+            })
         else res.sendStatus(418)
     }
     else res.sendStatus(code.code)
@@ -276,10 +287,9 @@ app.post("/girls/api/calendar", async (req: Request, res: Response) => {
     const code = await checkAuth(req.headers.authorization || '', true);
     if (code.code === 200) {
         if (Array.isArray(req.body.freeDays) && Array.isArray(req.body.busyDays)){
-            const freeDays: Date[] = req.body.freeDays.map((item: string|number)=>new Date(item))
-            const busyDays: Date[] = req.body.busyDays.map((item: string|number)=>new Date(item))
-            await sql.setCalendar(freeDays, code.id||0, 1)
-            await sql.setCalendar(busyDays, code.id||0, 2)
+            console.log(req.body.freeDays)
+            await sql.setCalendar(req.body.freeDays, code.id||0, 1)
+            await sql.setCalendar(req.body.busyDays, code.id||0, 2)
             res.json(true)
         }
         else res.sendStatus(418)
