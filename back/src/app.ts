@@ -44,8 +44,8 @@ bot.start(async (ctx: any) => {
                 const tokenSU: string = jwt.sign({ data: sUsers }, 'someText');
                 ctx.replyWithHTML('Держи клавиатурку', Markup.keyboard([
                     [
-                        {text: 'Список пользователей', web_app: {url: `https://spamigor.ru/vika/users?id=${ctx.from.id}`}},
-                        {text: 'Календарь', web_app: {url: `https://spamigor.ru/vika/events?id=${ctx.from.id}&admin=${true}`}},
+                        {text: 'Список пользователей', web_app: {url: `https://spamigor.ru/vika2/users?id=${ctx.from.id}`}},
+                        {text: 'Календарь', web_app: {url: `https://spamigor.ru/vika2/events?id=${ctx.from.id}&admin=${true}`}},
                         {text: 'Создать событие'}
                     ],
                     [
@@ -331,15 +331,13 @@ app.delete("/girls/api/users/:tgid", async (req: Request, res: Response) => {
 app.put("/girls/api/users/:tgid", async (req: Request, res: Response) => {
     const code = await checkAuth(req.headers.authorization || '', true);
     if (code.code === 200) {
+        console.log(req.body)
         if (req.body?.tgid && (req.body?.is_admin || req.body.is_admin === false)) {
-            if (req.body?.tgid && (req.body?.is_admin || req.body.is_admin === false)) {
-                const tgData: TGFrom = req.body;
-                const admin: boolean = req.body?.is_admin;
-                const id: number = req.body.tgid;
-                const result = await sql.userAdd(id, admin, req.body?.register || false, tgData);
-                res.json(result)
-            }
-            else res.sendStatus(418)
+            const tgData: TGFrom = req.body;
+            const admin: boolean = req.body?.is_admin;
+            const id: number = req.body.tgid;
+            const result = await sql.userAdd(id, admin, req.body?.register || false, tgData);
+            res.json(result)
         }
         else res.sendStatus(418)
     }
