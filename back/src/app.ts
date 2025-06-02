@@ -276,7 +276,8 @@ app.get("/girls/api/calendar", async (req: Request, res: Response) => {
         if (from.toJSON() && to.toJSON())
             res.json({
                 calendar: await sql.getCalendar(from, to),
-                users: await sql.userSearch({})
+                users: await sql.userSearch({}),
+                events: await sql.getEvent(from, to)
             })
         else res.sendStatus(418)
     }

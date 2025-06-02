@@ -13,10 +13,17 @@ const userUPD = (id: number|string, newData: TGFrom) => {
     return privateApi().put('/users/'+id, {...newData, tgid: newData.id})
 }
 
+const getCalendar = (from: number, to: number) => {
+    return getApi(`/calendar?from=${from}&to=${to}`)
+}
+
 export default {
     users: {
         get: users,
         delete: usersDel,
         upd: userUPD
+    },
+    calendar: {
+        get: getCalendar
     }
 }

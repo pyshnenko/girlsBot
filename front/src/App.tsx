@@ -3,6 +3,7 @@ import React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Users from './pages/Users'
+import Events from './pages/Events'
 import { Theme } from '@mui/material/styles';
 
 const darkTheme: Theme = createTheme({
@@ -19,6 +20,7 @@ export default function App():React.JSX.Element {
         <Router>
           <Routes>
             <Route path='vika2/users' element={<Users theme={darkTheme} />} />
+            <Route path='vika2/events' element={<Events theme={darkTheme} />} />
           </Routes>
         </Router>
       </ThemeProvider>
