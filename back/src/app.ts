@@ -185,7 +185,7 @@ bot.on('message', async (ctx: {message: {text: string}, from: {id: number}, sess
     ctx.session = session;
 })
 
-bot.launch();
+//bot.launch();
 
 bot.catch((err: any)=>console.log('Что-то с ботом' + String(err)));
 
@@ -269,7 +269,7 @@ app.delete('/girls/api/events/:id', async (req: Request, res: Response) => {
 })
 
 app.get("/girls/api/calendar", async (req: Request, res: Response) => {
-    const code = await checkAuth(req.headers.authorization || '', true);
+    const code = await checkAuth(req.headers.authorization || '');
     if (code.code === 200) {
         const from: Date = new Date(Number(req.query.from))
         const to: Date = new Date(Number(req.query.to))

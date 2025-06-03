@@ -7,6 +7,7 @@ import api from "../mech/api/api";
 import { month } from "../mech/consts";
 import {Calendar, CalendarAPI, EventListType} from '../types/events';
 import CalendarDay from "../mech/small/CalendarDay";
+import DayEventsForm from "../mech/small/DayEventsForm";
 
 interface PropsType {
     theme: Theme
@@ -30,10 +31,12 @@ export default function Events(props: PropsType):React.JSX.Element {
 
     const tg = window?.Telegram?.WebApp;  
 
+    const [activeMonth, setActiveMonth] = useState<Date>(new Date());
     const [daysFoB, setDaysFoB] = useState<Map<number, Calendar>>();
     const [eventsDB, setEventsDB] = useState<Map<number, EventListType>>();
     const [usersDB, setUsersDB] = useState<Map<number, TGFrom>>();
-    const [myId, setMyId] = useState<Number>(0);
+    const [myId, setMyId] = useState<number>(0);
+    const [activeDay, setActiveDay] = useState<number>(-1);
 
     useEffect(()=>{
         
@@ -43,7 +46,7 @@ export default function Events(props: PropsType):React.JSX.Element {
             http.set(id);
             setMyId(Number(id));
         }
-        updData();
+        setActiveMonth(new Date())
 
         tg.SecondaryButton
             .show()
@@ -57,12 +60,17 @@ export default function Events(props: PropsType):React.JSX.Element {
     }, [])
 
     useEffect(()=>{
+        if (http.get() && activeDay===-1) updData()
+    }, [activeMonth, activeDay])
+
+    useEffect(()=>{
         console.log(daysFoB)
     }, [daysFoB])
 
     const updData = async () => {
-        const year = (new Date()).getFullYear();
-        const month = (new Date()).getMonth()+1;
+        console.log(activeMonth)
+        const year = activeMonth.getFullYear();
+        const month = activeMonth.getMonth()+1;
         const apiData:APIReq = (await api.calendar.get(Number(new Date(`${year}-${month}-01`)), Number(new Date(`${month === 11 ? year+1 : year}-${(month+1)%12}-01`))))
             .data as APIReq
         console.log(apiData)
@@ -79,6 +87,7 @@ export default function Events(props: PropsType):React.JSX.Element {
 
     return (
         <Box>
+            <DayEventsForm {...{activeDay, setActiveDay, usersDB, dayList: daysFoB?.get(activeDay)||null, events: eventsDB?.get(activeDay)||null, activeMonth}} />
             <Typography>{month[(new Date()).getMonth()]}</Typography>
             <Table>
                 <TableBody>
@@ -89,7 +98,7 @@ export default function Events(props: PropsType):React.JSX.Element {
                                 const daysYN: Calendar|null = daysFoB?.get(days) || null;
                                 return (
                                     <TableCell sx={{padding: 0}} key={`day-${item[0]}-${index}`}>
-                                        <CalendarDay {...{dayEvents, daysYN, usersDB, days, dayOff: index>=5}}/>
+                                        <CalendarDay {...{dayEvents, daysYN, usersDB, days, dayOff: index>=5, setActiveDay, myId}}/>
                                     </TableCell>
                                 )
                             })}

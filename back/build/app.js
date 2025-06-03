@@ -64,6 +64,7 @@ bot.telegram.setMyCommands([
 ]);
 bot.start((ctx) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('start');
+    ctx.session = {};
     let checkUser = yield sql_1.default.userCheck(ctx.from.id);
     console.log(checkUser);
     if (checkUser === false) {
@@ -87,8 +88,8 @@ bot.start((ctx) => __awaiter(void 0, void 0, void 0, function* () {
                 const tokenSU = jwt.sign({ data: sUsers }, 'someText');
                 ctx.replyWithHTML('Держи клавиатурку', telegraf_1.Markup.keyboard([
                     [
-                        { text: 'Список пользователей', web_app: { url: `https://spamigor.ru/vika/users?id=${ctx.from.id}` } },
-                        { text: 'Календарь', web_app: { url: `https://spamigor.ru/vika/events?id=${ctx.from.id}&admin=${true}` } },
+                        { text: 'Список пользователей', web_app: { url: `https://spamigor.ru/vika2/users?id=${ctx.from.id}` } },
+                        { text: 'Календарь', web_app: { url: `https://spamigor.ru/vika2/events?id=${ctx.from.id}&admin=${true}` } },
                         { text: 'Создать событие' }
                     ],
                     [
@@ -225,7 +226,7 @@ bot.on('message', (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     }
     ctx.session = session;
 }));
-bot.launch();
+//bot.launch();
 bot.catch((err) => console.log('Что-то с ботом' + String(err)));
 const options = {
     swaggerOptions: {
@@ -319,7 +320,8 @@ exports.app.get("/girls/api/calendar", (req, res) => __awaiter(void 0, void 0, v
         if (from.toJSON() && to.toJSON())
             res.json({
                 calendar: yield sql_1.default.getCalendar(from, to),
-                users: yield sql_1.default.userSearch({})
+                users: yield sql_1.default.userSearch({}),
+                events: yield sql_1.default.getEvent(from, to)
             });
         else
             res.sendStatus(418);
@@ -328,7 +330,7 @@ exports.app.get("/girls/api/calendar", (req, res) => __awaiter(void 0, void 0, v
         res.sendStatus(code.code);
 }));
 exports.app.post("/girls/api/calendar", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const code = yield (0, funcs_1.checkAuth)(req.headers.authorization || '', true);
+    const code = yield (0, funcs_1.checkAuth)(req.headers.authorization || '');
     if (code.code === 200) {
         if (Array.isArray(req.body.freeDays) && Array.isArray(req.body.busyDays)) {
             console.log(req.body.freeDays);
@@ -358,6 +360,7 @@ exports.app.post("/girls/api/users", (req, res) => __awaiter(void 0, void 0, voi
     }
 }));
 exports.app.get("/girls/api/users", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.ip);
     const code = yield (0, funcs_1.checkAuth)(req.headers.authorization || '');
     if (code.code === 200) {
         const result = yield sql_1.default.userSearch({});
@@ -374,19 +377,16 @@ exports.app.delete("/girls/api/users/:tgid", (req, res) => __awaiter(void 0, voi
     }
 }));
 exports.app.put("/girls/api/users/:tgid", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c, _d;
     const code = yield (0, funcs_1.checkAuth)(req.headers.authorization || '', true);
     if (code.code === 200) {
-        if (((_a = req.body) === null || _a === void 0 ? void 0 : _a.tgid) && (((_b = req.body) === null || _b === void 0 ? void 0 : _b.is_admin) || req.body.is_admin === false)) {
-            if (((_c = req.body) === null || _c === void 0 ? void 0 : _c.tgid) && (((_d = req.body) === null || _d === void 0 ? void 0 : _d.is_admin) || req.body.is_admin === false)) {
-                const tgData = req.body;
-                const admin = (_e = req.body) === null || _e === void 0 ? void 0 : _e.is_admin;
-                const id = req.body.tgid;
-                const result = yield sql_1.default.userAdd(id, admin, ((_f = req.body) === null || _f === void 0 ? void 0 : _f.register) || false, tgData);
-                res.json(result);
-            }
-            else
-                res.sendStatus(418);
+        console.log(req.body);
+        if (((_a = req.body) === null || _a === void 0 ? void 0 : _a.tgid) && (((_b = req.body) === null || _b === void 0 ? void 0 : _b.is_admin) || req.body.is_admin === false || req.body.is_admin === 0)) {
+            const tgData = req.body;
+            const admin = (_c = req.body) === null || _c === void 0 ? void 0 : _c.is_admin;
+            const id = req.body.tgid;
+            const result = yield sql_1.default.userAdd(id, admin, ((_d = req.body) === null || _d === void 0 ? void 0 : _d.register) || false, tgData);
+            res.json(result);
         }
         else
             res.sendStatus(418);

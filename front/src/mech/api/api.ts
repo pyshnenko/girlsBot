@@ -17,6 +17,10 @@ const getCalendar = (from: number, to: number) => {
     return getApi(`/calendar?from=${from}&to=${to}`)
 }
 
+const YNEvent = (id: number, result: boolean) => {
+    return privateApi().put(`/eventsYN/${id}?req=${result}`)
+}
+
 export default {
     users: {
         get: users,
@@ -25,5 +29,8 @@ export default {
     },
     calendar: {
         get: getCalendar
+    },
+    events: {
+        YorN: YNEvent
     }
 }
