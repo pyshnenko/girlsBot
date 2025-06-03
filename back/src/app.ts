@@ -285,7 +285,7 @@ app.get("/girls/api/calendar", async (req: Request, res: Response) => {
 })
 
 app.post("/girls/api/calendar", async (req: Request, res: Response) => {
-    const code = await checkAuth(req.headers.authorization || '', true);
+    const code = await checkAuth(req.headers.authorization || '');
     if (code.code === 200) {
         if (Array.isArray(req.body.freeDays) && Array.isArray(req.body.busyDays)){
             console.log(req.body.freeDays)

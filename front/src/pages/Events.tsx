@@ -5,7 +5,7 @@ import { Theme } from '@mui/material/styles';
 import http from "../mech/api/http";
 import api from "../mech/api/api";
 import { month } from "../mech/consts";
-import {Calendar, CalendarAPI} from '../types/events';
+import {Calendar, CalendarAPI, EventListType} from '../types/events';
 import CalendarDay from "../mech/small/CalendarDay";
 
 interface PropsType {
@@ -14,7 +14,8 @@ interface PropsType {
 
 interface APIReq {
     calendar: CalendarAPI[],
-    users: TGFrom[]
+    users: TGFrom[],
+    events: EventListType[]
 }
 
 declare global {
@@ -29,7 +30,9 @@ export default function Events(props: PropsType):React.JSX.Element {
 
     const tg = window?.Telegram?.WebApp;  
 
-    const [events, setEvents] = useState<Calendar[]>([]);
+    const [daysFoB, setDaysFoB] = useState<Map<number, Calendar>>();
+    const [eventsDB, setEventsDB] = useState<Map<number, EventListType>>();
+    const [usersDB, setUsersDB] = useState<Map<number, TGFrom>>();
     const [myId, setMyId] = useState<Number>(0);
 
     useEffect(()=>{
@@ -54,8 +57,8 @@ export default function Events(props: PropsType):React.JSX.Element {
     }, [])
 
     useEffect(()=>{
-        console.log(events)
-    }, [events])
+        console.log(daysFoB)
+    }, [daysFoB])
 
     const updData = async () => {
         const year = (new Date()).getFullYear();
@@ -63,7 +66,15 @@ export default function Events(props: PropsType):React.JSX.Element {
         const apiData:APIReq = (await api.calendar.get(Number(new Date(`${year}-${month}-01`)), Number(new Date(`${month === 11 ? year+1 : year}-${(month+1)%12}-01`))))
             .data as APIReq
         console.log(apiData)
-        setEvents(apiData.calendar.map((item: CalendarAPI)=>{ return {...item, evtDate: new Date(item.evtDate)}}))
+        let days = new Map<number, Calendar>()
+        let events = new Map<number, EventListType>()
+        let users = new Map<number, TGFrom>()
+        apiData.calendar.forEach((item: CalendarAPI)=>{days.set((new Date(item.evtDate)).getDate(), {...item, evtDate: new Date(item.evtDate)})})
+        apiData.events.forEach((item: EventListType)=>{events.set((new Date(item.dateevent)).getDate(), item)})
+        apiData.users.forEach((items: TGFrom)=>{users.set(items.id, items)})
+        setDaysFoB(days)
+        setEventsDB(events)
+        setUsersDB(users)
     }
 
     return (
@@ -74,10 +85,11 @@ export default function Events(props: PropsType):React.JSX.Element {
                     {WeakDays(new Date()).map((item: number[])=>{
                         return (<TableRow key={`day-${item[0]}`}>
                             {item.map((days: number, index: number) => {
-                                const dayEvents: Calendar[] = events.filter((item: Calendar)=>item.evtDate?.getDate()===days)
+                                const dayEvents: EventListType|null = eventsDB?.get(days) || null;
+                                const daysYN: Calendar|null = daysFoB?.get(days) || null;
                                 return (
                                     <TableCell sx={{padding: 0}} key={`day-${item[0]}-${index}`}>
-                                        <CalendarDay {...{dayEvents, days, dayOff: index>=5}}/>
+                                        <CalendarDay {...{dayEvents, daysYN, usersDB, days, dayOff: index>=5}}/>
                                     </TableCell>
                                 )
                             })}
