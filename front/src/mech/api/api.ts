@@ -21,6 +21,10 @@ const YNEvent = (id: number, result: boolean) => {
     return privateApi().put(`/eventsYN/${id}?req=${result}`)
 }
 
+const YNday = (freeDays: number[], busyDays: number[]) => {
+    return privateApi().post('/calendar', {freeDays, busyDays})
+}
+
 export default {
     users: {
         get: users,
@@ -28,7 +32,8 @@ export default {
         upd: userUPD
     },
     calendar: {
-        get: getCalendar
+        get: getCalendar,
+        YNday
     },
     events: {
         YorN: YNEvent

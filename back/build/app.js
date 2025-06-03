@@ -313,7 +313,7 @@ exports.app.delete('/girls/api/events/:id', (req, res) => __awaiter(void 0, void
         res.sendStatus(code.code);
 }));
 exports.app.get("/girls/api/calendar", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const code = yield (0, funcs_1.checkAuth)(req.headers.authorization || '', true);
+    const code = yield (0, funcs_1.checkAuth)(req.headers.authorization || '');
     if (code.code === 200) {
         const from = new Date(Number(req.query.from));
         const to = new Date(Number(req.query.to));
@@ -360,7 +360,6 @@ exports.app.post("/girls/api/users", (req, res) => __awaiter(void 0, void 0, voi
     }
 }));
 exports.app.get("/girls/api/users", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.ip);
     const code = yield (0, funcs_1.checkAuth)(req.headers.authorization || '');
     if (code.code === 200) {
         const result = yield sql_1.default.userSearch({});
