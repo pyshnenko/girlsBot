@@ -185,7 +185,7 @@ bot.on('message', async (ctx: {message: {text: string}, from: {id: number}, sess
     ctx.session = session;
 })
 
-//bot.launch();
+bot.launch();
 
 bot.catch((err: any)=>console.log('Что-то с ботом' + String(err)));
 
