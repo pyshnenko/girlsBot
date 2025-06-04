@@ -14,3 +14,11 @@ export interface calendar {
     day: number,
     [key: `id${number}`]: 1|2|null
 }
+
+export interface groupSearchResult {
+    Id: number,
+    tgId: number,
+    name: string,
+    register: number,
+    admin: number
+}

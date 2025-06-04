@@ -2,3 +2,7 @@
 *node_modules*
 front/node_modules*
 *build/*
+*/build/*
+back/build/app.js
+back/build/mech/keyboard.js
+back/build/mech/sql.js

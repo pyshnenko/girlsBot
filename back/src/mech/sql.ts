@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 import mysql from "mysql2";
 import { TGFrom, TGCheck, DataForUserSearch } from '../types/tgTypes';
-import { eventListType, calendar } from '../types/sql';
+import { eventListType, calendar, groupSearchResult } from '../types/sql';
 
 export const connection = mysql.createConnection({
     host: String(process.env.SQLHOST),
@@ -202,6 +202,35 @@ export const setCalendar = async (date: number[], id: number, status: 1|2|null):
     }
 }
 
+export const setGroup = async (id: number, name: string, register: boolean, admin: boolean, groupId?: number): Promise<boolean> => {
+    try {
+        const maxId = groupId?groupId:((await connection.query(`select max(Id) from GroupsList`))[0] as {'max(Id)': number}[])[0]['max(Id)'];
+        await connection.query(`insert GroupsList(Id, tgId, name, admin, register) values(${maxId}, ${id}, "${name}", ${admin?1:0}, ${register?1:0})`)
+        return true
+    } catch(e: any) {
+        console.log(e)
+        return false
+    }
+}
+
+export const searchGroup = async (id: number, tgId: number): Promise<false|groupSearchResult> => {
+    try {
+        return ((await connection.query(`select * from GroupsList where Id=${id}`))[0] as groupSearchResult[])[0]
+    } catch(e: any) {
+        console.log(e)
+        return false
+    }
+}
+
+export const getGroup = async (tgId: number): Promise<false|groupSearchResult[]> => {
+    try {
+        return ((await connection.query(`select * from GroupsList where tgId=${tgId} and register=1`))[0] as groupSearchResult[])
+    } catch(e: any) {
+        console.log(e)
+        return false
+    }
+}
+
 
 
 //daylist {
@@ -225,5 +254,8 @@ export default {
     delUser,
     YNEvent,
     getCalendar,
-    setCalendar
+    setCalendar,
+    setGroup,
+    searchGroup,
+    getGroup
 }

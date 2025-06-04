@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import { useParams } from "react-router-dom";
 import { TGFrom } from "../types/users";
 import { Box, Table, TableBody, TableRow, TableCell, Typography, IconButton } from "@mui/material";
 import { Theme } from '@mui/material/styles';
@@ -8,6 +9,7 @@ import { month } from "../mech/consts";
 import {Calendar, CalendarAPI, EventListType} from '../types/events';
 import CalendarDay from "../mech/small/CalendarDay";
 import DayEventsForm from "../mech/small/DayEventsForm";
+import CheckMonth from "../mech/small/CheckMonth";
 
 interface PropsType {
     theme: Theme
@@ -71,7 +73,7 @@ export default function Events(props: PropsType):React.JSX.Element {
         console.log(activeMonth)
         const year = activeMonth.getFullYear();
         const month = activeMonth.getMonth()+1;
-        const apiData:APIReq = (await api.calendar.get(Number(new Date(`${year}-${month}-01`)), Number(new Date(`${month === 11 ? year+1 : year}-${(month+1)%12}-01`))))
+        const apiData:APIReq = (await api.calendar.get(Number(new Date(`${year}-${month}-01`)), Number(new Date(`${month === 12 ? year+1 : year}-${(month+1)%12+1}-01`))))
             .data as APIReq
         console.log(apiData)
         let days = new Map<number, Calendar>()
@@ -88,10 +90,10 @@ export default function Events(props: PropsType):React.JSX.Element {
     return (
         <Box>
             <DayEventsForm {...{activeDay, setActiveDay, usersDB, dayList: daysFoB?.get(activeDay)||null, events: eventsDB?.get(activeDay)||null, activeMonth}} />
-            <Typography>{month[(new Date()).getMonth()]}</Typography>
+            <CheckMonth {...{activeMonth, setActiveMonth}}/>
             <Table>
                 <TableBody>
-                    {WeakDays(new Date()).map((item: number[])=>{
+                    {WeakDays(activeMonth).map((item: number[])=>{
                         return (<TableRow key={`day-${item[0]}`}>
                             {item.map((days: number, index: number) => {
                                 const dayEvents: EventListType|null = eventsDB?.get(days) || null;
@@ -122,7 +124,8 @@ const WeakDays = (startDate: Date):number[][] => {
         for (let z = 0; z<10; z++) {
             const date = new Date(`${year}-${month}-${i}`)
             if (!Number(date)||(date.getMonth() === month)) {
-                for (let x = extArr[j].length; x<7; x++) extArr[j].push(-1)
+                if (extArr[j].length) for (let x = extArr[j].length; x<7; x++) extArr[j].push(-1)
+    console.log(extArr)
                 return extArr
             }
             else {
@@ -133,5 +136,6 @@ const WeakDays = (startDate: Date):number[][] => {
         }
         extArr.push([])
     }
+    console.log(extArr)
     return extArr
 }

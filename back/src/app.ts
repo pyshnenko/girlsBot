@@ -7,10 +7,13 @@ const bot = new Telegraf(String(process.env.TGTOK));
 import { Markup, session } from 'telegraf';
 import sql from './mech/sql'
 import { TGCheck, TGFrom } from './types/tgTypes';
+import { groupSearchResult } from './types/sql';
 import { CronJob } from 'cron';
 import { getMonth } from './consts/tg';
 import swaggerUi from "swagger-ui-express";
 import { checkAuth } from './mech/funcs';
+import { register } from 'module';
+import { GroupKeyboard, YNKeyboard } from './mech/keyboard';
 
 export const app: Express = express();
 
@@ -24,51 +27,20 @@ bot.start(async (ctx: any) => {
     console.log('start')
     ctx.session = {};
     let checkUser: boolean | TGCheck = await sql.userCheck(ctx.from.id);
-    console.log(checkUser);
     if (checkUser === false) {
         sql.userAdd(ctx.from.id, false, false, ctx.from);
-        ctx.reply('Здравствуйте. Администратор в ближайшее время будет уведомлен о Вашем визите');
-        let admins: {id: number}[] = await sql.askAllAdmin();
-        let sendToAdmin: boolean = false;
     }
-    else if (checkUser!==true){
-        if (checkUser.is_admin) {  //(ctx.from.id===Number(process.env.ADMIN))||
-            console.log('admin');
-            const users: boolean | TGFrom[] = await sql.userSearch({});
-            if (!users) ctx.reply('Не получил данные от сервера, попробуй снова');
-            else {
-                const sUsers: {id: number, name: string}[] | null = [];
-                typeof(users)!=='boolean'?
-                    users.forEach((item: TGFrom)=>{if (item.register) sUsers.push({name: `${item?.first_name||''} ${item?.last_name||''} ${item?.username||''}`, id: item.id})}) :
-                    null;
-                const tokenSU: string = jwt.sign({ data: sUsers }, 'someText');
-                ctx.replyWithHTML('Держи клавиатурку', Markup.keyboard([
-                    [
-                        {text: 'Список пользователей', web_app: {url: `https://spamigor.ru/vika2/users?id=${ctx.from.id}`}},
-                        {text: 'Календарь', web_app: {url: `https://spamigor.ru/vika2/events?id=${ctx.from.id}&admin=${true}`}},
-                        {text: 'Создать событие'}
-                    ],
-                    [
-                        {text: 'Добавить свободные даты в календарь'},
-                        {text: 'Добавить занятые даты в календарь'}
-                    ]
-                ]))
-            }
-        } 
-        else {
-            ctx.replyWithHTML('Держи клавиатурку', Markup.keyboard([
-                    [
-                        {text: 'Календарь', web_app: {url: `https://spamigor.ru/vika/events?id=${ctx.from.id}&admin=${false}`}}
-                    ],
-                    [
-                        {text: 'Добавить свободные даты в календарь'},
-                        {text: 'Добавить занятые даты в календарь'}
-                    ]
-                ]))
-        }
-        ctx.reply(`Привет ${ctx.from.first_name||ctx.from.last_name||ctx.from.username||''}!\n${checkUser.register?'Ты в списках!':'Ожидай решение администратора'}`)          
-    }
-    else ctx.reply('Ты недостоин');
+    ctx.replyWithHTML('Добро пожаловать в согласовальню!', 
+        Markup.keyboard([
+            [
+                {text: 'Выбрать группу из имеющихся у Вас'}
+            ],
+            [
+                {text: 'Создать группу'},
+                {text: 'Найти группу'}
+            ]
+        ])
+    )
 });
 
 bot.on('callback_query', async (ctx: any) => {
@@ -91,10 +63,18 @@ bot.on('callback_query', async (ctx: any) => {
             }
             else ctx.reply('что-то пошло не так')
         }
+        else if (session?.make === 'new group') {
+            await sql.setGroup(ctx.from.id, session.result||'none', true, true);
+            ctx.reply('Создано')
+        }
+        else if (session?.make === 'search group') {
+            await sql.setGroup(ctx.from.id, session.result.name, false, false, session.result.id);
+            ctx.reply('Создано')
+        }
         console.log(session.event?.date)
-        session = {}
+        session = {activeGroup: session.activeGroup}
     } else if (ctx.callbackQuery.data === 'NO') {
-        session = {}
+        session = {activeGroup: session.activeGroup}
     } else {
         const dataSplit: string[] = ctx.callbackQuery.data.split('_')
         const command = dataSplit[0];
@@ -114,6 +94,10 @@ bot.on('callback_query', async (ctx: any) => {
             session.date = {year: month > 11 ? (new Date()).getFullYear() + 1 : (new Date()).getFullYear(), month: month%12, day: 0}
             ctx.reply('Введи даты через пробел или запятую. Например: 1, 2,3 4')
         }
+        else if (command === 'setActiveGroup') {
+            session={activeGroup:commandIndex};
+            GroupKeyboard(ctx, 'Группа задана')
+        }
         console.log(ctx.callbackQuery.data)
     }
     ctx.session = session
@@ -123,17 +107,41 @@ bot.on('message', async (ctx: {message: {text: string}, from: {id: number}, sess
     let session = {...ctx.session};
     let checkUser: boolean | TGCheck = await sql.userCheck(ctx.from.id);
     switch (ctx.message.text) {
+        case 'Создать группу': {
+            session = {};
+            session.make = "new group"
+            ctx.reply('Введи название группы');
+            break;
+        }
+        case 'Найти группу': {
+            session = {};
+            session.make = "search group"
+            ctx.reply('Введи id группы (узнать его можно у создателя группы)');
+            break;
+        }
+        case 'Выбрать группу из имеющихся у Вас': {
+            session = {};
+            const groups = await sql.getGroup(ctx.from.id)
+            if (!groups) ctx.reply('что-то пошло не так. нажми /start')
+            else {
+                ctx.replyWithHTML('Выбери группу',
+                    Markup.inlineKeyboard(groups.map((item: groupSearchResult)=>
+                        Markup.button.callback(item.name, `setActiveGroup_${item.Id}`)))
+                )
+            }
+            break;
+        }
         case 'Создать событие': {
-            if (typeof(checkUser)!=='boolean' && checkUser?.is_admin) {
+            if (typeof(checkUser)!=='boolean') {
                 ctx.reply('Введи название события')
-                session = {};
+                session = {activeGroup: session.activeGroup};
                 session.make = 'newEvent';
                 session.await = 'name';
             } else ctx.reply('обратись к администратору')
             break;
         }
         case 'Добавить свободные даты в календарь': {
-            session = {};
+            session = {activeGroup: session.activeGroup};
             ctx.replyWithHTML('Выбери месяц',
                 Markup.inlineKeyboard([
                     Markup.button.callback(getMonth((new Date()).getMonth()), 'setFreeDayMonth_0'),
@@ -144,7 +152,7 @@ bot.on('message', async (ctx: {message: {text: string}, from: {id: number}, sess
             break;
         }
         case 'Добавить занятые даты в календарь': {
-            session = {};
+            session = {activeGroup: session.activeGroup};
             ctx.replyWithHTML('Выбери месяц',
                 Markup.inlineKeyboard([
                     Markup.button.callback(getMonth((new Date()).getMonth()), 'setBusyDayMonth_0'),
@@ -158,12 +166,7 @@ bot.on('message', async (ctx: {message: {text: string}, from: {id: number}, sess
             if (ctx.session?.make === 'newEvent' && ctx.session?.await === 'date') {
                 const dateText: string[] = ctx.message.text.replaceAll(' ', '').replaceAll(',', '.').split('.');
                 session.event = {...session.event, date: `${dateText[2]}-${dateText[1]}-${dateText[0]}`}
-                ctx.replyWithHTML(`Проверь:\n${ctx.session?.event?.name||''}\n${(new Date(dateText[2]+'-'+dateText[1]+'-'+dateText[0]).toLocaleDateString())}`,
-                    Markup.inlineKeyboard([
-                        Markup.button.callback('Да', 'YES'),
-                        Markup.button.callback('Нет', 'NO')
-                    ])
-            )
+                YNKeyboard(ctx, `Проверь:\n${ctx.session?.event?.name||''}\n${(new Date(dateText[2]+'-'+dateText[1]+'-'+dateText[0]).toLocaleDateString())}`)
             }
             else if (ctx.session?.make === 'newEvent' && ctx.session?.await === 'name') {
                 session.await = 'date';
@@ -176,12 +179,20 @@ bot.on('message', async (ctx: {message: {text: string}, from: {id: number}, sess
                 console.log(session)
                 session.result = dayArray;
                 dayArray.forEach((item: string) => {mess+=(new Date(`${session.date.year}-${session.date.month}-${item}`).toLocaleDateString())+'\n'})
-                ctx.replyWithHTML(mess,
-                    Markup.inlineKeyboard([
-                        Markup.button.callback('Да', 'YES'),
-                        Markup.button.callback('Нет', 'NO')
-                    ])
-                )
+                YNKeyboard(ctx, mess)
+            }
+            else if (ctx.session?.make==='search group') {
+                const result = await sql.searchGroup(Number(ctx.message.text), ctx.from.id)
+                if (result && result.register) GroupKeyboard(ctx, 'Группа выбрана')
+                else if (result && !result.register) {
+                    session.result={id: Number(ctx.message.text), name: result.name};
+                    YNKeyboard(ctx, `Подать запрос на вступление в группу "${result.name}"?`)
+                }
+                else ctx.reply('не найдено')
+            }
+            else if (ctx.session?.make === 'new group'){
+                session.result = ctx.message.text;                
+                YNKeyboard(ctx, `Группа будет называться:\n${ctx.message.text}`)
             }
         }
     }
