@@ -81,9 +81,12 @@ bot.on('callback_query', async (ctx: any) => {
         }
         else if ((session?.make === 'freeDay') || (session?.make === 'busyDay')) {
             let days: number[] = []
+            console.log('add days')
             if (Array.isArray(session?.result)) {
-                days = session.result.map((item: string)=>Number(new Date(`${session.date.year}-${session.date.month}-${item}T03:00:01.003Z`)))
-                await sql.setCalendar(days, ctx.from.id, session.make === 'freeDay'?1:session?.make === 'busyDay'?2:null)
+                console.log(session)
+                days = session.result.map((item: string)=>Number(new Date(`${session.date.year}-${session.date.month}-${item}`)))
+                console.log(days)
+                console.log(await sql.setCalendar(days, ctx.from.id, session.make === 'freeDay'?1:session?.make === 'busyDay'?2:null))
                 ctx.reply('Выполнено')
             }
             else ctx.reply('что-то пошло не так')
