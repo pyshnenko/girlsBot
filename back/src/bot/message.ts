@@ -7,19 +7,20 @@ import { getMonth } from "../consts/tg";
 import { YNKeyboard } from "../mech/keyboard";
 import sql from "../mech/sql";
 
-export default async function message(ctx: Context) {
+export default async function message(ctx: any) {
     let session = {...ctx.session};
     let checkUser: boolean | TGCheck = await sql.user.userCheck(ctx.from.id);
+    console.log('start');
+    console.log(checkUser)
+    console.log(ctx.session)
     switch (ctx.message.text) {
         case 'Создать группу': {
-            session = {};
-            session.make = "new group"
+            session = {make: "new group"};
             ctx.reply('Введи название группы');
             break;
         }
         case 'Найти группу': {
-            session = {};
-            session.make = "search group"
+            session = {make: "search group"};
             ctx.reply('Введи id группы (узнать его можно у создателя группы)');
             break;
         }
@@ -36,7 +37,7 @@ export default async function message(ctx: Context) {
             break;
         }
         case 'Создать событие': {
-            if (typeof(checkUser)!=='boolean') {
+            if ((typeof(checkUser)!=='boolean')||checkUser===true) {
                 ctx.reply('Введи название события')
                 session = {activeGroup: session.activeGroup};
                 session.make = 'newEvent';
@@ -87,6 +88,7 @@ export default async function message(ctx: Context) {
             }
             else if (ctx.session?.make==='search group') {
                 const result = await sql.group.searchGroup(Number(ctx.message.text), ctx.from.id)
+                console.log(result);
                 if (result && result.register) GroupKeyboard(ctx, 'Группа выбрана')
                 else if (result && !result.register) {
                     session.result={id: Number(ctx.message.text), name: result.name};
@@ -100,5 +102,8 @@ export default async function message(ctx: Context) {
             }
         }
     }
+    return session
     ctx.session = session;
+    console.log('end')
+    console.log(ctx.session)
 }

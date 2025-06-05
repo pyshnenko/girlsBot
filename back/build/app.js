@@ -66,8 +66,8 @@ bot.on('callback_query', (ctx) => __awaiter(void 0, void 0, void 0, function* ()
     (0, callback_1.default)(ctx);
 }));
 bot.on('message', (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    (0, message_1.default)(ctx);
+    ctx.session = yield (0, message_1.default)(ctx);
 }));
-//bot.launch();
+bot.launch();
 bot.catch((err) => console.log('Что-то с ботом' + String(err)));
 api_1.default.listen(8900, () => { console.log('Hello on 8900'); });

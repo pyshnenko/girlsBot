@@ -24,8 +24,8 @@ bot.on('callback_query', async (ctx: Context) => {
     callback(ctx);
 })
 
-bot.on('message', async (ctx: Context) => {
-    message(ctx);
+bot.on('message', async (ctx: any) => {
+    ctx.session = await message(ctx);
 })
 
 bot.launch();
