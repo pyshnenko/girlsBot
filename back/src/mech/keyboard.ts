@@ -6,7 +6,7 @@ export function GroupKeyboard(ctx: any, text: string, session: any) {
     ctx.replyWithHTML(text, Markup.keyboard([
         [
             {text: 'Список пользователей', web_app: {url: `https://spamigor.ru/vika2/users?id=${ctx.from.id}&group=${session?.activeGroup}`}},
-            {text: 'Календарь', web_app: {url: `https://spamigor.ru/vika2/events?id=${ctx.from.id}&group=${ctx.session?.activeGroup}`}},
+            {text: 'Календарь', web_app: {url: `https://spamigor.ru/vika2/events?id=${ctx.from.id}&group=${session?.activeGroup`}},
             {text: 'Создать событие'}
         ],
         [
