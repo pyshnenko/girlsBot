@@ -44,6 +44,8 @@ export default function Events(props: PropsType):React.JSX.Element {
         
         const uri: URL = new URL(window.location.href);
         const id: string|null = uri.searchParams.get('id');
+        const group: string|null = uri.searchParams.get('group');
+        if (group) api.setGroup(Number(group))
         if (id) {
             http.set(id);
             setMyId(Number(id));

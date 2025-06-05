@@ -44,7 +44,9 @@ export default function Users(props: PropsType):React.JSX.Element {
     useEffect(()=>{
         const uri: URL = new URL(window.location.href);
         const id: string|null = uri.searchParams.get('id');
+        const group: string|null = uri.searchParams.get('group');
         if (id) http.set(id);
+        if (group) api.setGroup(Number(group))
         updData();
 
         tg.SecondaryButton
@@ -88,14 +90,14 @@ export default function Users(props: PropsType):React.JSX.Element {
                               <TableRow
                                 color="error"
                                 key={item.id}
-                                sx={{backgroundColor: item.is_admin?admColor.adm:admColor.user}}
+                                sx={{backgroundColor: item.admin?admColor.adm:admColor.user}}
                               >
                                 <TableCell sx={{padding: 1}}>{item.username+'\n'+item.first_name+'\n'+item.last_name}</TableCell>
                                 <TableCell sx={{padding: 0}}>                              
                                     <IconButton sx={{margin: 0}} color="success" onClick={async ()=>{
-                                        await api.users.upd(item.id, {...item, register: true, is_admin: !item.is_admin})
+                                        await api.users.upd(item.id, {...item, register: true, admin: !item.admin})
                                         updData();
-                                    }}>{item.is_admin?<ArrowDownwardIcon />:<ArrowUpwardIcon />}</IconButton>
+                                    }}>{item.admin?<ArrowDownwardIcon />:<ArrowUpwardIcon />}</IconButton>
                                     <IconButton sx={{margin: 0}} color="error" onClick={async ()=>{
                                         await api.users.delete(item.id);
                                         updData();

@@ -6,6 +6,6 @@ export interface TGFrom {
     username?: string,
     language_code?: string,
     is_premium?: boolean,
-    is_admin: boolean,
+    admin: boolean,
     register: boolean
 }

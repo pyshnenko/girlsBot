@@ -162,7 +162,7 @@ app.put("/girls/api/users/:tgid", async (req: Request, res: Response) => {
             const tgData: TGFrom = req.body;
             const admin: boolean = req.body?.is_admin;
             const id: number = req.body.tgid;
-            const group: number = req.body.group;
+            const group: number = Number(req.params['tgid']);
             const name: string = req.body.name;
             const result = await sql.user.userAdd({id: group, name}, id, admin, req.body?.register || false, tgData);
             res.json(result)
