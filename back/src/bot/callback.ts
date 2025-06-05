@@ -61,7 +61,7 @@ export default async function callback(ctx: Context, session: any) {
         }
         else if (command === 'setActiveGroup') {
             session={activeGroup:commandIndex};
-            GroupKeyboard(ctx, 'Группа задана')
+            GroupKeyboard(ctx, 'Группа задана', session)
         }
         console.log(ctx.callbackQuery.data)
     }
