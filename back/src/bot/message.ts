@@ -89,7 +89,7 @@ export default async function message(ctx: any) {
             else if (ctx.session?.make==='search group') {
                 const result = await sql.group.searchGroup(Number(ctx.message.text), ctx.from.id)
                 console.log(result);
-                if (result && result.register) GroupKeyboard(ctx, 'Группа выбрана')
+                if (result && result.register) GroupKeyboard(ctx, 'Группа выбрана', session)
                 else if (result && !result.register) {
                     session.result={id: Number(ctx.message.text), name: result.name};
                     YNKeyboard(ctx, `Подать запрос на вступление в группу "${result.name}"?`)
