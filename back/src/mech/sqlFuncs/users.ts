@@ -12,6 +12,7 @@ export default class SQLUsers {
     }
 
     userAdd = async (group: {id: number, name: string}|null, id: number, admin: boolean, register: boolean, tgData:TGFrom) => {
+        console.log(group)
         try {
             let userInGroup: FullTGForm[] = group===null? [] :
                 (await this.connection.query(`select * from GroupsList join UsersList on GroupsList.tgId=UsersList.id where tgId=${id} and GroupsList.Id=${group.id}`))[0] as FullTGForm[]
@@ -31,10 +32,11 @@ id}, ${tgData?.is_bot||false}, "${tgData?.first_name||'noName'}", "${tgData?.las
                 }
             }
             else if (group) {
-                if (!!userInGroup[0].register !== register) {
+                if (Boolean(userInGroup[0].register) !== register) {
                     await this.connection.query(`update GroupsList set register=${register?1:0} where Id=${group.id} and tgId=${id}`)
                 }
-                if (!!userInGroup[0].admin !== admin) {
+                if (Boolean(userInGroup[0].admin) !== admin) {
+
                     await this.connection.query(`update GroupsList set admin=${admin?1:0} where Id=${group.id} and tgId=${id}`)
                 }
             }

@@ -836,7 +836,7 @@
             "type": "boolean",
             "example": false
           },
-          "is_admin": {
+          "admin": {
             "type": "boolean",
             "example": false
           },

@@ -160,7 +160,7 @@ app.put("/girls/api/users/:tgid", async (req: Request, res: Response) => {
         console.log(req.body)
         if (req.body?.tgid && (req.body?.admin || req.body.admin === false || req.body.admin === 0)) {
             const tgData: TGFrom = req.body;
-            const admin: boolean = req.body?.is_admin;
+            const admin: boolean = req.body.admin;
             const id: number = req.body.tgid;
             const group: number = Number(req.params['tgid']);
             const name: string = req.body.name;
