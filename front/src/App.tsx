@@ -6,7 +6,7 @@ import Users from './pages/Users'
 import Events from './pages/Events'
 import { Theme } from '@mui/material/styles';
 
-const darkTheme: Theme = createTheme({
+export const darkTheme: Theme = createTheme({
   palette: {
     mode: (window as Window & typeof globalThis & {Telegram: any}).Telegram.WebApp.colorScheme,
   },

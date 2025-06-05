@@ -5,13 +5,19 @@ export interface TGFrom {
     last_name?: string,
     username?: string,
     language_code?: string,
-    is_premium?: boolean,
-    register: boolean
+    is_premium?: boolean
+}
+
+export type FullTGForm = TGFrom & {
+    admin: 1|0,
+    register: 1|0,
+    name: string,
+    Id: number
 }
 
 export interface TGCheck {
     register: boolean,
-    is_admin: boolean
+    admin: boolean
 }
 
 export interface DataForUserSearch {

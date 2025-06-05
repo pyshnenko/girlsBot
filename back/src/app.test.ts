@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 import request from "supertest";
   
-import { app } from "./app";
+import app from "./api";
 
 it("test basic function", function(done: any){
       
