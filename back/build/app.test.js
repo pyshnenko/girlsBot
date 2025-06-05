@@ -39,16 +39,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 const supertest_1 = __importDefault(require("supertest"));
-const app_1 = require("./app");
+const api_1 = __importDefault(require("./api"));
 it("test basic function", function (done) {
-    (0, supertest_1.default)(app_1.app)
+    (0, supertest_1.default)(api_1.default)
         .get("/girls/api/startCheck")
         .expect(200)
         .end(done);
 });
 describe("database test", () => {
     it("test connection to sql", function (done) {
-        (0, supertest_1.default)(app_1.app)
+        (0, supertest_1.default)(api_1.default)
             .get("/girls/api/sqlCheck")
             .set('Accept', 'application/json')
             .set('Authorization', `Bearer ${String(process.env.ADMIN)}`)
@@ -56,7 +56,7 @@ describe("database test", () => {
             .end(done);
     });
     it("test non-auth connection to sql", function (done) {
-        (0, supertest_1.default)(app_1.app)
+        (0, supertest_1.default)(api_1.default)
             .get("/girls/api/sqlCheck")
             .expect(401)
             .end(done);
