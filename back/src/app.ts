@@ -20,7 +20,7 @@ bot.start(async (ctx: Context) => {
     start(ctx);
 });
 
-bot.on('callback_query', async (ctx: Contex) => {
+bot.on('callback_query', async (ctx: Context) => {
     callback(ctx, ctx.session);
 })
 
