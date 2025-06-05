@@ -2,8 +2,8 @@ import { Context } from "../types/bot";
 import { GroupKeyboard } from "../mech/keyboard";
 import sql from "../mech/sql";
 
-export default async function callback(ctx: Context) {
-    let session = {...ctx.session};
+export default async function callback(ctx: Context, session: any) {
+    //let session = {...ctx.session};
     ctx.deleteMessage();
     if (ctx.callbackQuery.data === 'YES') {
         if (session?.make === 'newEvent') {
