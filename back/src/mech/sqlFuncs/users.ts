@@ -66,7 +66,7 @@ id}, ${tgData?.is_bot||false}, "${tgData?.first_name||'noName'}", "${tgData?.las
     userCheck = async (id: number, group?: number): Promise<boolean | TGCheck> => {
         try {
             let hist: any[] = [];
-            if (group) hist = await this.connection.query(`select register, admin from GroupsList join UsersList on GroupsList.tgId=UsersList.id where tgId=${id} and Id=${group}`);
+            if (group) hist = await this.connection.query(`select register, admin from GroupsList join UsersList on GroupsList.tgId=UsersList.id where GroupsList.tgId=${id} and GroupsList.Id=${group}`);
             else hist = await this.connection.query(`select * from UsersList where id=${id}`)
             if (!hist[0].length)
                 return false
