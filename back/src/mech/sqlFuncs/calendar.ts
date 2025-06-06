@@ -17,6 +17,7 @@ export default class SQLCalendar {
             return (await this.connection.query(`select ${queryParam} from dayList where evtDate>="${dateToSql(from)}" and evtDate<="${dateToSql(to)}" and groupID=${group} order by evtDate`))[0] as calendar[]
         }
         catch (e: any) {
+            console.log(e)
             return null
         }
     }
