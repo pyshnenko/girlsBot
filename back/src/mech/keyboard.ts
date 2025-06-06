@@ -4,6 +4,7 @@ import { Markup } from 'telegraf';
 export function GroupKeyboard(ctx: any, text: string, session: any, admin?: boolean) {
     console.log('keyboard')
     console.log(session)
+    console.log(`https://spamigor.ru/vika2/users?id=${ctx.from.id}&group=${session?.activeGroup}`)
 
     let firstLine = admin ?  [
             {text: 'Список пользователей', web_app: {url: `https://spamigor.ru/vika2/users?id=${ctx.from.id}&group=${session?.activeGroup}`}},

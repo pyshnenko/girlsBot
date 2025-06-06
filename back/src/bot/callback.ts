@@ -61,11 +61,11 @@ export default async function callback(ctx: Context, session: Session) {
         }
         else if (command === 'setActiveGroup') {
             session={activeGroup:commandIndex};
-            const is_admin = sql.user.userCheck(ctx.from.id, commandIndex)
+            const is_admin = await sql.user.userCheck(ctx.from.id, commandIndex)
             console.log(is_admin);
-            GroupKeyboard(ctx, 'Группа задана', session)
+            GroupKeyboard(ctx, 'Группа задана', session, typeof(is_admin)==='boolean'?false:is_admin.admin)
         }
         console.log(ctx.callbackQuery.data)
     }
-    ctx.session = session
+    return session
 }

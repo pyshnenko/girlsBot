@@ -17,18 +17,18 @@ bot.telegram.setMyCommands([
 ])
 
 bot.start(async (ctx: Context) => {
-    start(ctx);
+    ctx.session = await start(ctx, ctx.session);
 });
 
 bot.on('callback_query', async (ctx: Context) => {
-    callback(ctx, ctx.session);
+    ctx.session = await callback(ctx, ctx.session);
 })
 
 bot.on('message', async (ctx: any) => {
-    ctx.session = await message(ctx);
+    ctx.session = await message(ctx, ctx.session);
 })
 
-//bot.launch();
+bot.launch();
 
 bot.catch((err: any)=>console.log('Что-то с ботом' + String(err)));
 

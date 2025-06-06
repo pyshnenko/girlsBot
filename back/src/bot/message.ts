@@ -1,4 +1,4 @@
-import { Context } from "../types/bot";
+import { Context, Session } from "../types/bot";
 import { Markup } from "telegraf";
 import { GroupKeyboard } from "../mech/keyboard";
 import { TGCheck } from "../types/tgTypes";
@@ -7,8 +7,8 @@ import { getMonth } from "../consts/tg";
 import { YNKeyboard } from "../mech/keyboard";
 import sql from "../mech/sql";
 
-export default async function message(ctx: any) {
-    let session = {...ctx.session};
+export default async function message(ctx: Context, session: Session) {
+    //let session = {...ctx.session};
     let checkUser: boolean | TGCheck = await sql.user.userCheck(ctx.from.id);
     console.log('start');
     console.log(checkUser)
@@ -89,7 +89,10 @@ export default async function message(ctx: any) {
             else if (ctx.session?.make==='search group') {
                 const result = await sql.group.searchGroup(Number(ctx.message.text), ctx.from.id)
                 console.log(result);
-                if (result && result.register) GroupKeyboard(ctx, 'Группа выбрана', session)
+                if (result && result.register) {
+                    delete(session.make)
+                    GroupKeyboard(ctx, 'Группа выбрана', session, result.admin?true:false)
+                }
                 else if (result && !result.register) {
                     session.result={id: Number(ctx.message.text), name: result.name};
                     YNKeyboard(ctx, `Подать запрос на вступление в группу "${result.name}"?`)
