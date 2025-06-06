@@ -10,7 +10,7 @@ export default class SQLGroup {
     async setGroup(id: number, name: string, register: boolean, admin: boolean, groupId?: number): Promise<boolean> {
         try {
             const maxId = groupId?groupId:((await this.connection.query(`select max(Id) from GroupsList`))[0] as {'max(Id)': number}[])[0]['max(Id)']+1;
-            await this.connection.query(`insert GroupsList(Id, tgId, name, admin, register) values(${maxId+1}, ${id}, "${name}", ${admin?1:0}, ${register?1:0})`)
+            await this.connection.query(`insert GroupsList(Id, tgId, name, admin, register) values(${maxId}, ${id}, "${name}", ${admin?1:0}, ${register?1:0})`)
             return true
         } catch(e: any) {
             console.log(e)
