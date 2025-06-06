@@ -90,12 +90,13 @@ export default async function message(ctx: Context, session: Session) {
                 const result = await sql.group.searchGroup(Number(ctx.message.text), ctx.from.id)
                 console.log(result);
                 if (result) {
-                    delete(session.make);
                     const searchMe = result.filter((item: groupSearchResult)=>item.tgId===ctx.from.id);
                     if (searchMe.length && searchMe[0].register){
+                        delete(session.make);
                         GroupKeyboard(ctx, 'Группа выбрана', session, searchMe[0].admin?true:false)
                     }
                     else if (searchMe.length && !searchMe[0].register) {
+                        delete(session.make);
                         ctx.reply('Администратор еще не принял решение')
                     }
                     else {
