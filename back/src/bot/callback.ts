@@ -33,8 +33,9 @@ export default async function callback(ctx: Context, session: Session) {
             ctx.reply('Создано')
         }
         else if (session?.make === 'search group') {
+            console.log(session.result)
             await sql.group.setGroup(ctx.from.id, session?.result?.name, false, false, session?.result?.id);
-            ctx.reply('Создано')
+            ctx.reply('Заявка подана')
         }
         console.log(session.event?.date)
         session = {activeGroup: session.activeGroup}
