@@ -109,6 +109,10 @@ export default async function message(ctx: Context, session: Session) {
                 session.result = ctx.message.text;                
                 YNKeyboard(ctx, `Группа будет называться:\n${ctx.message.text}`)
             }
+            else if (ctx.message.text.includes('All') && ctx.from.id===Number(process.env.ADMIN)) {
+                const userList = await sql.user.userSearch({},0)
+                console.log(userList)
+            }
         }
     }
     return session

@@ -49,10 +49,13 @@ id}, ${tgData?.is_bot||false}, "${tgData?.first_name||'noName'}", "${tgData?.las
         if (!data?.dataFields) data.dataFields = '*';
         try {
             let queryString: string = '';
-            if (data?.id) queryString = `select ${data.dataFields} from GroupsList join UsersList on GroupsList.tgId=UsersList.id where GroupsList.Id=${groupId} and UsersList.id=${data.id}`
-            else if (data?.register) queryString = `select ${data.dataFields} from GroupsList join UsersList on GroupsList.tgId=UsersList.id where GroupsList.Id=${groupId} and GroupsList.register=true`
-            else if (data?.admin) queryString = `select ${data.dataFields} from GroupsList join UsersList on GroupsList.tgId=UsersList.id where GroupsList.Id=${groupId} and GroupsList.admin=true`
-            else queryString = `select ${data.dataFields} from GroupsList join UsersList on GroupsList.tgId=UsersList.id where GroupsList.Id=${groupId}`
+            if (groupId===0){
+                if (data?.id) queryString = `select ${data.dataFields} from GroupsList join UsersList on GroupsList.tgId=UsersList.id where GroupsList.Id=${groupId} and UsersList.id=${data.id}`
+                else if (data?.register) queryString = `select ${data.dataFields} from GroupsList join UsersList on GroupsList.tgId=UsersList.id where GroupsList.Id=${groupId} and GroupsList.register=true`
+                else if (data?.admin) queryString = `select ${data.dataFields} from GroupsList join UsersList on GroupsList.tgId=UsersList.id where GroupsList.Id=${groupId} and GroupsList.admin=true`
+                else queryString = `select ${data.dataFields} from GroupsList join UsersList on GroupsList.tgId=UsersList.id where GroupsList.Id=${groupId}`
+            }
+            else queryString = `select * from UsersList`;
             let hist: any[] = await this.connection.query(queryString)
             if (!hist[0].length)
                 return false
