@@ -24,12 +24,12 @@ export default class SQLUsers {
 id}, ${tgData?.is_bot||false}, "${tgData?.first_name||'noName'}", "${tgData?.last_name||'noLname'}", "${tgData?.username||'noUname'}", "${tgData.language_code||'noCode'}", ${tgData?.is_premium===true})`)
                 }
                 if (group) {
-                    await this.connection.query(`insert GroupsList(name, tgId, admin, register, Id) values("${group.name}", ${id}, ${admin?1:0}, ${register?1:0}, ${group.id})`);
-                    try{await this.connection.query(`alter table eventList add column id${id} bool default 0`)}
-                    catch(e: any) {}
-                    try{await this.connection.query(`alter table dayList add column id${id} bool default 0`)}
-                    catch(e: any) {}
+                    await this.connection.query(`insert GroupsList(name, tgId, admin, register, Id) values("${group.name}", ${id}, ${admin?1:0}, ${register?1:0}, ${group.id})`);    
                 }
+                try{await this.connection.query(`alter table eventList add column id${id} bool default 0`)}
+                catch(e: any) {}
+                try{await this.connection.query(`alter table dayList add column id${id} bool default 0`)}
+                catch(e: any) {}
             }
             else if (group) {
                 if (Boolean(userInGroup[0].register) !== register) {
