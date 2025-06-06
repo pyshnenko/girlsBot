@@ -7,5 +7,6 @@ export interface TGFrom {
     language_code?: string,
     is_premium?: boolean,
     admin: boolean,
-    register: boolean
+    register: boolean,
+    name: string
 }

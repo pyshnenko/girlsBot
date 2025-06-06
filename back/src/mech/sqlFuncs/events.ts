@@ -59,7 +59,7 @@ export default class SQLEvents {
     getEvent = async (group: number, from: Date, to?: Date): Promise<eventListType[] | null> => {
         try {
             const ask = await this.connection.query(
-                to ? `select * from eventList where dateevent>"${dateToSql(from)}" and dateevent<"${dateToSql(to)} and groupID=${group} order by dateevent"` : 
+                to ? `select * from eventList where dateevent>"${dateToSql(from)}" and dateevent<"${dateToSql(to)}" and groupID=${group} order by dateevent` : 
                 `select * from eventList where dateevent>"${dateToSql(from)}" and groupID=${group}`)
             //console.log(ask)
             return (ask)[0] as eventListType[]

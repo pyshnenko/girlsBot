@@ -34,11 +34,12 @@ export default function Events(props: PropsType):React.JSX.Element {
     const tg = window?.Telegram?.WebApp;  
 
     const [activeMonth, setActiveMonth] = useState<Date>(new Date());
-    const [daysFoB, setDaysFoB] = useState<Map<number, Calendar>>();
+    const [daysFoB, setDaysFoB] = useState<Map<number, Calendar|null>>();
     const [eventsDB, setEventsDB] = useState<Map<number, EventListType>>();
     const [usersDB, setUsersDB] = useState<Map<number, TGFrom>>();
     const [myId, setMyId] = useState<number>(0);
     const [activeDay, setActiveDay] = useState<number>(-1);
+    const [listName, setListName] = useState<string|null>(null);
 
     useEffect(()=>{
         
@@ -72,26 +73,30 @@ export default function Events(props: PropsType):React.JSX.Element {
     }, [daysFoB])
 
     const updData = async () => {
-        console.log(activeMonth)
-        const year = activeMonth.getFullYear();
-        const month = activeMonth.getMonth()+1;
-        const apiData:APIReq = (await api.calendar.get(Number(new Date(`${year}-${month}-01`)), Number(new Date(`${month === 12 ? year+1 : year}-${(month+1)%12+1}-01`))))
-            .data as APIReq
-        console.log(apiData)
-        let days = new Map<number, Calendar>()
+        let days = new Map<number, Calendar|null>();
+        //for (let i = 1; i<32; i++) days.set(i, null)
         let events = new Map<number, EventListType>()
         let users = new Map<number, TGFrom>()
+        setDaysFoB(days)
+        setEventsDB(events)
+        const year = activeMonth.getFullYear();
+        const month = activeMonth.getMonth()+1;
+        const apiData:APIReq = (await api.calendar.get(Number(new Date(`${year}-${month}-01`)), Number(new Date(`${month === 12 ? year+1 : year}-${(month)%12+1}-01`))))
+            .data as APIReq
+        console.log(apiData)
         apiData.calendar.forEach((item: CalendarAPI)=>{days.set((new Date(item.evtDate)).getDate(), {...item, evtDate: new Date(item.evtDate)})})
         apiData.events.forEach((item: EventListType)=>{events.set((new Date(item.dateevent)).getDate(), item)})
         apiData.users.forEach((items: TGFrom)=>{users.set(items.id, items)})
         setDaysFoB(days)
         setEventsDB(events)
         setUsersDB(users)
+        if (apiData.users.length) setListName(apiData.users[0].name)
     }
 
     return (
         <Box>
             <DayEventsForm {...{activeDay, setActiveDay, usersDB, dayList: daysFoB?.get(activeDay)||null, events: eventsDB?.get(activeDay)||null, activeMonth}} />
+            {listName&&<Typography textAlign={'center'} variant="h3">{listName}</Typography>}
             <CheckMonth {...{activeMonth, setActiveMonth}}/>
             <Table>
                 <TableBody>
@@ -127,7 +132,6 @@ const WeakDays = (startDate: Date):number[][] => {
             const date = new Date(`${year}-${month}-${i}`)
             if (!Number(date)||(date.getMonth() === month)) {
                 if (extArr[j].length) for (let x = extArr[j].length; x<7; x++) extArr[j].push(-1)
-    console.log(extArr)
                 return extArr
             }
             else {
@@ -138,6 +142,5 @@ const WeakDays = (startDate: Date):number[][] => {
         }
         extArr.push([])
     }
-    console.log(extArr)
     return extArr
 }

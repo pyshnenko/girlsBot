@@ -22,6 +22,7 @@ export default function CalendarDay(props: PropsType): React.JSX.Element {
 
     useEffect(()=>{
         if (daysYN) setDaysKeys(daysYNObjectKeys(daysYN))
+        else setDaysKeys({ln:-1, free: [], buzy: []})
     }, [daysYN])
 
     return (
@@ -74,7 +75,5 @@ const daysYNObjectKeys = (evt:Calendar):{ln: number, free: (string)[], buzy: (st
     let keys: (string)[] = Object.keys(evt).filter((item: string)=>{
         if (item!=='id' && item.includes(`id`)) return item as string
     })
-    console.log(keys)
-    console.log({ln: keys.length, free: keys.filter((item:any)=>(evt[item]===1)), buzy: keys.filter((item:any)=>(evt[item]===2))})
     return {ln: keys.length, free: keys.filter((item:any)=>(evt[item]===1)), buzy: keys.filter((item:any)=>(evt[item]===2))}
 }
