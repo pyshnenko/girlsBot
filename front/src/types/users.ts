@@ -8,5 +8,6 @@ export interface TGFrom {
     is_premium?: boolean,
     admin: boolean,
     register: boolean,
-    name: string
+    name: string,
+    Id: number
 }

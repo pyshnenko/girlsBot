@@ -31,6 +31,7 @@ export default function Users(props: PropsType):React.JSX.Element {
     const tg = window?.Telegram?.WebApp;  
 
     const [usersList, setUsersList] = useState<TGFrom[]>([])
+    const [adminsNum, setAdminsNum] = useState<{nums: number, myId: number}>({nums: 0, myId: 0})
 
     const admColor: {adm: string, user: string} = 
         theme.palette.mode==='dark'?{
@@ -63,6 +64,7 @@ export default function Users(props: PropsType):React.JSX.Element {
         api.users.get().then((res: AxiosResponse)=>{
             console.log(res.data)
             setUsersList(res.data as TGFrom[])
+            setAdminsNum({nums: (res.data as TGFrom[]).filter((item: TGFrom)=>item.admin).length, myId: Number(http.get())})
         }).catch((e:AxiosError)=>console.log(e))
     }
 
@@ -94,14 +96,14 @@ export default function Users(props: PropsType):React.JSX.Element {
                               >
                                 <TableCell sx={{padding: 1}}>{item.username+'\n'+item.first_name+'\n'+item.last_name}</TableCell>
                                 <TableCell sx={{padding: 0}}>                              
-                                    <IconButton sx={{margin: 0}} color="success" onClick={async ()=>{
+                                    {(!item.admin || adminsNum.nums>1 || item.id!==adminsNum.myId)&&<IconButton sx={{margin: 0}} color="success" onClick={async ()=>{
                                         await api.users.upd(item.id, {...item, register: true, admin: !item.admin})
                                         updData();
-                                    }}>{item.admin?<ArrowDownwardIcon />:<ArrowUpwardIcon />}</IconButton>
-                                    <IconButton sx={{margin: 0}} color="error" onClick={async ()=>{
+                                    }}>{item.admin?<ArrowDownwardIcon />:<ArrowUpwardIcon />}</IconButton>}
+                                    {(!item.admin || adminsNum.nums>1 || item.id!==adminsNum.myId || usersList.length===1)&&<IconButton sx={{margin: 0}} color="error" onClick={async ()=>{
                                         await api.users.delete(item.id);
                                         updData();
-                                    }}><DeleteIcon /></IconButton>      
+                                    }}><DeleteIcon /></IconButton>}     
                                 </TableCell>
                               </TableRow>
                     )})}

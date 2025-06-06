@@ -39,7 +39,7 @@ export default function Events(props: PropsType):React.JSX.Element {
     const [usersDB, setUsersDB] = useState<Map<number, TGFrom>>();
     const [myId, setMyId] = useState<number>(0);
     const [activeDay, setActiveDay] = useState<number>(-1);
-    const [listName, setListName] = useState<string|null>(null);
+    const [listName, setListName] = useState<{name: string, id: number}|null>(null);
 
     useEffect(()=>{
         
@@ -90,13 +90,13 @@ export default function Events(props: PropsType):React.JSX.Element {
         setDaysFoB(days)
         setEventsDB(events)
         setUsersDB(users)
-        if (apiData.users.length) setListName(apiData.users[0].name)
+        if (apiData.users.length) setListName({name: apiData.users[0].name, id: apiData.users[0].Id})
     }
 
     return (
         <Box>
             <DayEventsForm {...{activeDay, setActiveDay, usersDB, dayList: daysFoB?.get(activeDay)||null, events: eventsDB?.get(activeDay)||null, activeMonth}} />
-            {listName&&<Typography textAlign={'center'} variant="h3">{listName}</Typography>}
+            {listName&&<Typography textAlign={'center'} variant="h3">{`${listName.name} (id:${listName.id})`}</Typography>}
             <CheckMonth {...{activeMonth, setActiveMonth}}/>
             <Table>
                 <TableBody>
