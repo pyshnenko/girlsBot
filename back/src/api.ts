@@ -74,7 +74,7 @@ app.put('/girls/api/eventsYN/:id', async (req: Request, res: Response) => {
     const code = await checkAuth(req.headers.authorization || '');
     if (code.code === 200) {
         if (req.query.req && Number(req.params['id'])) {
-            await sql.event.YNEvent(req.body.evtId, req.query?.req === 'true' ? 1 : req.query.req === 'false' ? 2 : null, code.id||0, Number(req.params['id']))
+            await sql.event.YNEvent(Number(req.query?.evtId), req.query?.req === 'true' ? 1 : req.query.req === 'false' ? 2 : null, code.id||0, Number(req.params['id']))
             res.json(true)
         }
         else res.sendStatus(418);
