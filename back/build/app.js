@@ -63,7 +63,7 @@ bot.start((ctx) => __awaiter(void 0, void 0, void 0, function* () {
     (0, start_1.default)(ctx);
 }));
 bot.on('callback_query', (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    (0, callback_1.default)(ctx);
+    (0, callback_1.default)(ctx, ctx.session);
 }));
 bot.on('message', (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     ctx.session = yield (0, message_1.default)(ctx);
