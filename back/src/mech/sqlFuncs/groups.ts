@@ -17,9 +17,9 @@ export default class SQLGroup {
             return false
         }
     }
-    searchGroup = async (id: number, tgId: number): Promise<false|groupSearchResult> => {
+    searchGroup = async (id: number, tgId: number): Promise<false|groupSearchResult[]> => {
         try {
-            return ((await this.connection.query(`select * from GroupsList where Id=${id}`))[0] as groupSearchResult[])[0]
+            return ((await this.connection.query(`select * from GroupsList where Id=${id}`))[0] as groupSearchResult[])
         } catch(e: any) {
             console.log(e)
             return false
