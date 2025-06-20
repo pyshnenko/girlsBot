@@ -89,19 +89,30 @@ export default async function message(ctx: Context, session: Session) {
             else if (ctx.session?.make==='search group') {
                 const result = await sql.group.searchGroup(Number(ctx.message.text), ctx.from.id)
                 console.log(result);
-                if (result && result.register) {
-                    delete(session.make)
-                    GroupKeyboard(ctx, 'Группа выбрана', session, result.admin?true:false)
-                }
-                else if (result && !result.register) {
-                    session.result={id: Number(ctx.message.text), name: result.name};
-                    YNKeyboard(ctx, `Подать запрос на вступление в группу "${result.name}"?`)
+                if (result) {
+                    const searchMe = result.filter((item: groupSearchResult)=>item.tgId===ctx.from.id);
+                    if (searchMe.length && searchMe[0].register){
+                        delete(session.make);
+                        GroupKeyboard(ctx, 'Группа выбрана', session, searchMe[0].admin?true:false)
+                    }
+                    else if (searchMe.length && !searchMe[0].register) {
+                        delete(session.make);
+                        ctx.reply('Администратор еще не принял решение')
+                    }
+                    else {
+                        session.result={id: Number(ctx.message.text), name: result[0].name};
+                        YNKeyboard(ctx, `Подать запрос на вступление в группу "${result[0].name}"?`)
+                    }
                 }
                 else ctx.reply('не найдено')
             }
             else if (ctx.session?.make === 'new group'){
                 session.result = ctx.message.text;                
                 YNKeyboard(ctx, `Группа будет называться:\n${ctx.message.text}`)
+            }
+            else if (ctx.message.text.includes('All') && ctx.from.id===Number(process.env.ADMIN)) {
+                const userList = await sql.user.userSearch({},0)
+                console.log(userList)
             }
         }
     }

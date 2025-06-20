@@ -24,12 +24,12 @@ export default class SQLUsers {
 id}, ${tgData?.is_bot||false}, "${tgData?.first_name||'noName'}", "${tgData?.last_name||'noLname'}", "${tgData?.username||'noUname'}", "${tgData.language_code||'noCode'}", ${tgData?.is_premium===true})`)
                 }
                 if (group) {
-                    await this.connection.query(`insert GroupsList(name, tgId, admin, register, Id) values("${group.name}", ${id}, ${admin?1:0}, ${register?1:0}, ${group.id})`);
-                    try{await this.connection.query(`alter table eventList add column id${id} bool default 0`)}
-                    catch(e: any) {}
-                    try{await this.connection.query(`alter table dayList add column id${id} bool default 0`)}
-                    catch(e: any) {}
+                    await this.connection.query(`insert GroupsList(name, tgId, admin, register, Id) values("${group.name}", ${id}, ${admin?1:0}, ${register?1:0}, ${group.id})`);    
                 }
+                try{await this.connection.query(`alter table eventList add column id${id} bool default 0`)}
+                catch(e: any) {}
+                try{await this.connection.query(`alter table dayList add column id${id} bool default 0`)}
+                catch(e: any) {}
             }
             else if (group) {
                 if (Boolean(userInGroup[0].register) !== register) {
@@ -49,10 +49,13 @@ id}, ${tgData?.is_bot||false}, "${tgData?.first_name||'noName'}", "${tgData?.las
         if (!data?.dataFields) data.dataFields = '*';
         try {
             let queryString: string = '';
-            if (data?.id) queryString = `select ${data.dataFields} from GroupsList join UsersList on GroupsList.tgId=UsersList.id where GroupsList.Id=${groupId} and UsersList.id=${data.id}`
-            else if (data?.register) queryString = `select ${data.dataFields} from GroupsList join UsersList on GroupsList.tgId=UsersList.id where GroupsList.Id=${groupId} and GroupsList.register=true`
-            else if (data?.admin) queryString = `select ${data.dataFields} from GroupsList join UsersList on GroupsList.tgId=UsersList.id where GroupsList.Id=${groupId} and GroupsList.admin=true`
-            else queryString = `select ${data.dataFields} from GroupsList join UsersList on GroupsList.tgId=UsersList.id where GroupsList.Id=${groupId}`
+            if (groupId){
+                if (data?.id) queryString = `select ${data.dataFields} from GroupsList join UsersList on GroupsList.tgId=UsersList.id where GroupsList.Id=${groupId} and UsersList.id=${data.id}`
+                else if (data?.register) queryString = `select ${data.dataFields} from GroupsList join UsersList on GroupsList.tgId=UsersList.id where GroupsList.Id=${groupId} and GroupsList.register=true`
+                else if (data?.admin) queryString = `select ${data.dataFields} from GroupsList join UsersList on GroupsList.tgId=UsersList.id where GroupsList.Id=${groupId} and GroupsList.admin=true`
+                else queryString = `select ${data.dataFields} from GroupsList join UsersList on GroupsList.tgId=UsersList.id where GroupsList.Id=${groupId}`
+            }
+            else queryString = `select * from UsersList`;
             let hist: any[] = await this.connection.query(queryString)
             if (!hist[0].length)
                 return false
