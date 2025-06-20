@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
-import { Telegraf, NarrowedContext } from 'telegraf';
+import { Telegraf } from 'telegraf';
 const bot = new Telegraf(String(process.env.TGTOK));
 import { session } from 'telegraf';
 import start from './bot/start';
