@@ -5,6 +5,7 @@ import SQLGroup from './sqlFuncs/groups';
 import SQLUsers from './sqlFuncs/users';
 import SQLEvents from './sqlFuncs/events';
 import SQLCalendar from './sqlFuncs/calendar';
+import SQLActiveGroup from './sqlFuncs/activeGroup';
 
 export const connection = mysql.createConnection({
     host: String(process.env.SQLHOST),
@@ -35,5 +36,6 @@ export default {
     calendar: new SQLCalendar(connection),
     event: new SQLEvents(connection),
     user: new SQLUsers(connection),
-    group: new SQLGroup(connection)
+    group: new SQLGroup(connection),
+    active: new SQLActiveGroup(connection)
 }

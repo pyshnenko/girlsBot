@@ -4,6 +4,8 @@ import { DataForUserSearch } from "../../types/tgTypes";
 import { GroupsSQL } from "../../types/group";
 import { groupSearchResult } from "../../types/sql";
 
+type UserOrNot<T> = T extends number ? Promise<false | TGCheck> : Promise<boolean>
+
 export default class SQLUsers {
     connection: Connection;
 

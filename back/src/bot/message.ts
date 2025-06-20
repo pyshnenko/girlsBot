@@ -1,30 +1,47 @@
 import { Context, Session } from "../types/bot";
-import { Markup } from "telegraf";
-import { GroupKeyboard } from "../mech/keyboard";
-import { TGCheck } from "../types/tgTypes";
+import { Markup, Telegraf } from "telegraf";
+import { GroupKeyboard, searchGroupKeyboard } from "../mech/keyboard";
+import { TGCheck, TGFrom } from "../types/tgTypes";
 import { groupSearchResult } from "../types/sql";
 import { getMonth } from "../consts/tg";
 import { YNKeyboard } from "../mech/keyboard";
 import sql from "../mech/sql";
 
-export default async function message(ctx: Context, session: Session) {
+export default async function message(ctx: Context, session: Session, bot: Telegraf) {
     //let session = {...ctx.session};
     let checkUser: boolean | TGCheck = await sql.user.userCheck(ctx.from.id);
     console.log('start');
     console.log(checkUser)
     console.log(ctx.session)
     switch (ctx.message.text) {
-        case 'Создать группу': {
+        case '/info': {
+            ctx.reply(Math.floor(Math.random()*10)%2?'Там-сям, туда-сюда':'Сбожьей помощью');
+            break;
+        }
+        case '/tariff': {
+            ctx.reply('Наш единственный разработчик нуждается в поддержке');
+            break;
+        }
+        case '/support': {
+            ctx.reply(Math.floor(Math.random()*10)%2?'*нежно похлопываю вас по плечу*':'Мы верим в тебя!!!!');
+            break;
+        }
+        case '➕Создать группу': {
             session = {make: "new group"};
             ctx.reply('Введи название группы');
             break;
         }
-        case 'Найти группу': {
+        case 'Выбрать другую группу': {
+            sql.active.setActiveDate(ctx.from.id, 0);
+            searchGroupKeyboard(ctx, 'Давай выберем другую группу')
+            break;
+        }
+        case '🔎Найти группу': {
             session = {make: "search group"};
             ctx.reply('Введи id группы (узнать его можно у создателя группы)');
             break;
         }
-        case 'Выбрать группу из имеющихся у Вас': {
+        case '🧾Выбрать группу из имеющихся у Вас': {
             session = {};
             const groups = await sql.group.getGroup(ctx.from.id)
             if (!groups) ctx.reply('что-то пошло не так. нажми /start')
@@ -36,17 +53,17 @@ export default async function message(ctx: Context, session: Session) {
             }
             break;
         }
-        case 'Создать событие': {
+        case '➕Создать событие': {
             if ((typeof(checkUser)!=='boolean')||checkUser===true) {
                 ctx.reply('Введи название события')
-                session = {activeGroup: session.activeGroup};
+                //session = {activeGroup: session.activeGroup};
                 session.make = 'newEvent';
                 session.await = 'name';
             } else ctx.reply('обратись к администратору')
             break;
         }
-        case 'Добавить свободные даты в календарь': {
-            session = {activeGroup: session.activeGroup};
+        case '🖌Добавить свободные даты в календарь': {
+            //session = {activeGroup: session.activeGroup};
             ctx.replyWithHTML('Выбери месяц',
                 Markup.inlineKeyboard([
                     Markup.button.callback(getMonth((new Date()).getMonth()), 'setFreeDayMonth_0'),
@@ -56,8 +73,8 @@ export default async function message(ctx: Context, session: Session) {
             )
             break;
         }
-        case 'Добавить занятые даты в календарь': {
-            session = {activeGroup: session.activeGroup};
+        case '🖍Добавить занятые даты в календарь': {
+            //session = {activeGroup: session.activeGroup};
             ctx.replyWithHTML('Выбери месяц',
                 Markup.inlineKeyboard([
                     Markup.button.callback(getMonth((new Date()).getMonth()), 'setBusyDayMonth_0'),
@@ -93,7 +110,7 @@ export default async function message(ctx: Context, session: Session) {
                     const searchMe = result.filter((item: groupSearchResult)=>item.tgId===ctx.from.id);
                     if (searchMe.length && searchMe[0].register){
                         delete(session.make);
-                        GroupKeyboard(ctx, 'Группа выбрана', session, searchMe[0].admin?true:false)
+                        GroupKeyboard(ctx, 'Группа выбрана', searchMe[0].Id, searchMe[0].admin?true:false)
                     }
                     else if (searchMe.length && !searchMe[0].register) {
                         delete(session.make);
@@ -112,12 +129,10 @@ export default async function message(ctx: Context, session: Session) {
             }
             else if (ctx.message.text.includes('All') && ctx.from.id===Number(process.env.ADMIN)) {
                 const userList = await sql.user.userSearch({},0)
+                userList.map((item: TGFrom) => bot.telegram.sendMessage(item.id, ctx.message.text.slice(5)))
                 console.log(userList)
             }
         }
     }
     return session
-    ctx.session = session;
-    console.log('end')
-    console.log(ctx.session)
 }

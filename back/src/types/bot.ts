@@ -14,7 +14,7 @@ export type Session = {
     },
     make?: string,
     result?: any,
-    activeGroup?: number,
+    //activeGroup?: number,
     await?: string
 
 }

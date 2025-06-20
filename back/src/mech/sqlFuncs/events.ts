@@ -9,10 +9,10 @@ export default class SQLEvents {
         this.connection = connection;
     }
 
-    addEvent = async (authorID: number, namestring: string, dateevent: Date, place: string, linc: string, group: number): Promise<boolean> => {
+    addEvent = async (authorID: number, namestring: string, dateevent: Date, place: string, linc: string, group: number): Promise<number|false> => {
         try {
             await this.connection.query(`insert eventList(authorID, namestring, dateevent, place, linc, groupID) values(${authorID}, "${namestring}", "${dateToSql(dateevent)}", "${place}", "${linc}", ${group})`)
-            return true
+            return ((await this.connection.query(`select id from eventList where authorID=${authorID} and dateevent="${dateToSql(dateevent)}"`))[0] as {id: number}[])[0]?.id||false
         } catch (e: any) {
             console.log(e)
             return false
