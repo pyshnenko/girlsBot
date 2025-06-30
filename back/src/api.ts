@@ -174,10 +174,10 @@ app.put("/girls/api/users/:tgid", async (req: Request, res: Response) => {
 
 app.get("/girls/api/kudago/events", async (req: Request, res: Response) => {
     if (Number(req.query?.from) && Number(req.query?.to)) {
-        const uri = `events/?fields=id,images,dates,title,short_title,place,price,description,site_url&location=msk&actual_since=${Math.floor(Number(req.query?.from)/1000)}&actual_until=${Math.floor(Number(req.query?.to)/1000)}&categories=festival,concert&page_size=100`;
+        const uri = `events/?fields=id,images,dates,title,short_title,place,price,description,site_url&location=msk&actual_since=${Math.floor(Number(req.query?.from))}&actual_until=${Math.floor(Number(req.query?.to))}&categories=festival,concert&page_size=100`;
         try {
             const result = await axios.get('https://kudago.com/public-api/v1.4/'+ uri)
-            console.log(result)
+            //console.log(result)
             res.json(result.data)
         } catch (e) {
             res.sendStatus(500)
