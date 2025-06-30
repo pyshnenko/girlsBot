@@ -3,6 +3,7 @@ import swaggerUi from "swagger-ui-express";
 import { checkAuth } from './mech/funcs';
 import sql from './mech/sql';
 import { TGFrom, TGCheck } from "./types/tgTypes";
+import axios from "axios";
 
 const app: Express = express();
 
@@ -169,6 +170,19 @@ app.put("/girls/api/users/:tgid", async (req: Request, res: Response) => {
         }
         else res.sendStatus(418)
     }
+})
+
+app.get("/girls/api/kudago/events", async (req: Request, res: Response) => {
+    if (Number(req.query?.from) && Number(req.query?.to)) {
+        const uri = `events/?fields=id,images,dates,title,short_title,place,price,description,site_url&location=msk&actual_since=${Math.floor(Number(req.query?.from)/1000)}&actual_until=${Math.floor(Number(req.query?.to)/1000)}&categories=festival,concert&page_size=100`;
+        try {
+            const result = await axios.get('https://kudago.com/public-api/v1.4/'+ uri)
+            res.json(result.data)
+        } catch (e) {
+            res.sendStatus(500)
+        }
+    }
+    else res.sendStatus(400)
 })
 
 app.get("/girls/api/sqlCheck", async (req: Request, res: Response) => {

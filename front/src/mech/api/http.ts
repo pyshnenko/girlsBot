@@ -27,6 +27,8 @@ export const getApi = (uri: string) => axios.get(baseURL+uri, {
     }
 })
 
+export const kudagoAPI = (uri: string) => axios.get(baseURL+uri)
+
 export const deleteApi = (uri: string, id: number|string, group: number) => axios.delete(baseURL + uri + '/' + group + '?tgId='+id, {
     headers: {
       "Authorization": `Bearer ${token}`

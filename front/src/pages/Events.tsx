@@ -10,6 +10,7 @@ import {Calendar, CalendarAPI, EventListType} from '../types/events';
 import CalendarDay from "../mech/small/CalendarDay";
 import DayEventsForm from "../mech/small/DayEventsForm";
 import CheckMonth from "../mech/small/CheckMonth";
+import zIndex from "@mui/material/styles/zIndex";
 
 interface PropsType {
     theme: Theme
@@ -40,6 +41,7 @@ export default function Events(props: PropsType):React.JSX.Element {
     const [myId, setMyId] = useState<number>(0);
     const [activeDay, setActiveDay] = useState<number>(-1);
     const [listName, setListName] = useState<{name: string, id: number}|null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(()=>{
         
@@ -73,6 +75,7 @@ export default function Events(props: PropsType):React.JSX.Element {
     }, [daysFoB])
 
     const updData = async () => {
+        setLoading(true)
         let days = new Map<number, Calendar|null>();
         //for (let i = 1; i<32; i++) days.set(i, null)
         let events = new Map<number, EventListType>()
@@ -90,11 +93,16 @@ export default function Events(props: PropsType):React.JSX.Element {
         setDaysFoB(days)
         setEventsDB(events)
         setUsersDB(users)
+        setLoading(false)
         if (apiData.users.length) setListName({name: apiData.users[0].name, id: apiData.users[0].Id})
     }
 
     return (
         <Box>
+            {loading&&<Box sx={{...themeBat, zIndex:203, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                <div style={{zIndex:204}} className="bat"></div>
+                <Box sx={{...themeBat, zIndex: 199, backgroundColor: 'white', opacity: 0.75}} />
+            </Box>}
             <DayEventsForm {...{activeDay, setActiveDay, usersDB, dayList: daysFoB?.get(activeDay)||null, events: eventsDB?.get(activeDay)||null, activeMonth}} />
             {listName&&<Typography textAlign={'center'} variant="h3">{`${listName.name} (id:${listName.id})`}</Typography>}
             <CheckMonth {...{activeMonth, setActiveMonth}}/>
@@ -143,4 +151,12 @@ const WeakDays = (startDate: Date):number[][] => {
         extArr.push([])
     }
     return extArr
+}
+
+const themeBat = {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh'
 }

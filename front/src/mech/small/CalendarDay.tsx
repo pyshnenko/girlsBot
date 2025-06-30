@@ -3,6 +3,7 @@ import { Box, Typography, Avatar } from "@mui/material";
 import { Calendar, EventListType } from "../../types/events";
 import { green, pink, orange } from '@mui/material/colors';
 import { TGFrom } from "../../types/users";
+import '../../styles/bat.scss';
 
 interface PropsType {
     dayEvents: EventListType|null,

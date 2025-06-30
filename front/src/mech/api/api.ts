@@ -1,5 +1,5 @@
 import { TGFrom } from "../../types/users";
-import { loginApi, privateApi, getApi, deleteApi } from "./http";
+import { loginApi, privateApi, getApi, deleteApi, kudagoAPI } from "./http";
 
 let group: number = 0;
 
@@ -27,6 +27,10 @@ const YNday = (freeDays: number[], busyDays: number[]) => {
     return privateApi().post('/calendar/'+group, {freeDays, busyDays})
 }
 
+const kudaGoEvents = (from: Date, to: Date) => {
+    return kudagoAPI(`/kudago/events/?from=${Math.floor(Number(from)/1000)}&to=${Math.floor(Number(to)/1000)}`)
+}
+
 export default {
     users: {
         get: users,
@@ -40,5 +44,8 @@ export default {
     events: {
         YorN: YNEvent
     },
-    setGroup: (n: number)=>{group=n}
+    setGroup: (n: number)=>{group=n},
+    kudago: {
+        getEvents: kudaGoEvents
+    }
 }

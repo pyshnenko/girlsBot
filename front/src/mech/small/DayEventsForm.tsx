@@ -5,6 +5,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import { TGFrom } from "../../types/users";
 import api from "../api/api";
+import KudagoCard from "./KudagoCard";
 
 interface PropsType {
     activeDay: number,
@@ -20,6 +21,7 @@ export default function DayEventsForm(props: PropsType): React.JSX.Element {
     const {dayList, activeDay, activeMonth, setActiveDay, events, usersDB} = props
 
     const [realDate, setRealDate] = useState<Date>(new Date());
+    const [kudagoCardActive, setKudagoCardActive] = useState<boolean>(false);
 
     useEffect(()=>{
         let realDateBuf = new Date(activeMonth);
@@ -89,8 +91,11 @@ export default function DayEventsForm(props: PropsType): React.JSX.Element {
                     <Button onClick={()=>YoNDay(activeDay, true)} sx={{margin:1}} variant="outlined" color="success" startIcon={<CheckIcon />}>Я свободна</Button>
                     <Button onClick={()=>YoNDay(activeDay, false)} sx={{margin:1}} variant="outlined" color="error" endIcon={<CloseIcon />}>Я занята</Button>
                 </Paper>
+                <Button variant="contained" sx={{margin: 2}} onClick={async ()=>
+                    setKudagoCardActive(true)
+                }>Посмотреть события в городе в этот день</Button>
             </Paper>
-
+            {kudagoCardActive&&<KudagoCard date={realDate} setActive={setKudagoCardActive} />}
         </Box>
     )
 }
