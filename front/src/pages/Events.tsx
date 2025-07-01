@@ -1,16 +1,15 @@
 import React, {useEffect, useState} from "react";
-import { useParams } from "react-router-dom";
 import { TGFrom } from "../types/users";
-import { Box, Table, TableBody, TableRow, TableCell, Typography, IconButton } from "@mui/material";
+import { Box, Table, TableBody, TableRow, TableCell, Typography } from "@mui/material";
 import { Theme } from '@mui/material/styles';
 import http from "../mech/api/http";
 import api from "../mech/api/api";
-import { month } from "../mech/consts";
 import {Calendar, CalendarAPI, EventListType} from '../types/events';
-import CalendarDay from "../mech/small/CalendarDay";
 import DayEventsForm from "../mech/small/DayEventsForm";
+import CalendarDay from "../mech/small/CalendarDay";
 import CheckMonth from "../mech/small/CheckMonth";
-import zIndex from "@mui/material/styles/zIndex";
+import image1 from '../image/image1.jpg'
+import { calendarBoxes } from "../styles/themes";
 
 interface PropsType {
     theme: Theme
@@ -98,13 +97,18 @@ export default function Events(props: PropsType):React.JSX.Element {
     }
 
     return (
-        <Box>
+        <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+        }}>
+            <img style={{position: 'fixed', zIndex: -1, top: 0, left: 0, height: '100vh', opacity: 0.8}} src={image1} />
             {loading&&<Box sx={{...themeBat, zIndex:203, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                 <div style={{zIndex:204}} className="bat"></div>
                 <Box sx={{...themeBat, zIndex: 199, backgroundColor: 'white', opacity: 0.75}} />
             </Box>}
             <DayEventsForm {...{activeDay, setActiveDay, usersDB, dayList: daysFoB?.get(activeDay)||null, events: eventsDB?.get(activeDay)||null, activeMonth}} />
-            {listName&&<Typography textAlign={'center'} variant="h3">{`${listName.name} (id:${listName.id})`}</Typography>}
+            {listName&&<Typography textAlign={'center'} variant="h3" fontSize={'larger'} sx={calendarBoxes}>{`${listName.name} (id:${listName.id})`}</Typography>}
             <CheckMonth {...{activeMonth, setActiveMonth}}/>
             <Table>
                 <TableBody>
@@ -114,7 +118,7 @@ export default function Events(props: PropsType):React.JSX.Element {
                                 const dayEvents: EventListType|null = eventsDB?.get(days) || null;
                                 const daysYN: Calendar|null = daysFoB?.get(days) || null;
                                 return (
-                                    <TableCell sx={{padding: 0}} key={`day-${item[0]}-${index}`}>
+                                    <TableCell sx={{padding: 0, border: 'none'}} key={`day-${item[0]}-${index}`}>
                                         <CalendarDay {...{dayEvents, daysYN, usersDB, days, dayOff: index>=5, setActiveDay, myId}}/>
                                     </TableCell>
                                 )

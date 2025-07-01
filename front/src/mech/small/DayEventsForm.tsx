@@ -67,29 +67,31 @@ export default function DayEventsForm(props: PropsType): React.JSX.Element {
                         <IconButton onClick={()=>YoNevent(events.id, false)} color="error"><CloseIcon /></IconButton>
                     </Box>
                     <Box sx={{display: 'flex', flexDirection: 'row'}}>
-                        <Box sx={{width: '49%', textAlign: 'left'}}>
+                        <Box sx={{width: '49%', textAlign: 'left', }}>
                             {events&&Object.keys(events||{}).filter((item: any)=>{return (item.includes('id') && (events[item]===1))}).map((item: string)=>
-                                <Typography color="success" key={item}>{usersDB?.get(Number(item.slice(2)))?.first_name}</Typography>)}
+                                <Typography sx={{backgroundColor: '#c6efce', padding: 1, boxShadow: '0 0 3px #c6efce'}} color="success" key={item}>{usersDB?.get(Number(item.slice(2)))?.first_name}</Typography>)}
                         </Box>
                         <Box sx={{width: '49%', textAlign: 'right'}}>
                             {events&&Object.keys(events||{}).filter((item: any)=>{return (item.includes('id') && (events[item]===2))}).map((item: string)=>
-                                <Typography color="error" key={item}>{usersDB?.get(Number(item.slice(2)))?.first_name}</Typography>)}
+                                <Typography sx={{backgroundColor: '#ffc7ce', padding: 1, boxShadow: '0 0 3px #ffc7ce'}} color="error" key={item}>{usersDB?.get(Number(item.slice(2)))?.first_name}</Typography>)}
                         </Box>
                     </Box>
-                </Paper>:<Typography>Событий не планировалось</Typography>}
-                <Paper elevation={1} sx={{padding: 2}}>
-                    <Typography>Свободны:</Typography>
-                    {dayList&&Object.keys(dayList).filter((item: any)=>(item.includes('id')&&(dayList[item]===1))).map((item: string)=>
-                    <Typography key={item} color="success">{usersDB?.get(Number(item.slice(2)))?.first_name}</Typography>)}
-                </Paper>
-                <Paper elevation={1} sx={{padding: 2}}>
-                    <Typography>Заняты:</Typography>
-                    {dayList&&Object.keys(dayList).filter((item: any)=>(item.includes('id')&&(dayList[item]===2))).map((item: string)=>
-                    <Typography key={item} color="error">{usersDB?.get(Number(item.slice(2)))?.first_name}</Typography>)}
-                </Paper>
-                <Paper elevation={1}>
-                    <Button onClick={()=>YoNDay(activeDay, true)} sx={{margin:1}} variant="outlined" color="success" startIcon={<CheckIcon />}>Я свободна</Button>
-                    <Button onClick={()=>YoNDay(activeDay, false)} sx={{margin:1}} variant="outlined" color="error" endIcon={<CloseIcon />}>Я занята</Button>
+                </Paper>:<Typography textAlign={'center'}>Событий не планировалось</Typography>}
+                <Paper elevation={3} sx={{padding: 2, margin: '4px 0', display: 'flex', flexDirection: 'column'}}>
+                    <Box sx={{display: 'flex'}}>
+                        <Box sx={{width: '50%', borderRadius: 1}}>
+                            {dayList&&Object.keys(dayList).filter((item: any)=>(item.includes('id')&&(dayList[item]===1))).map((item: string)=>
+                            <Typography sx={{backgroundColor: '#c6efce', padding: 1, boxShadow: '0 0 3px #c6efce'}} key={item} color="success">{usersDB?.get(Number(item.slice(2)))?.first_name}</Typography>)}
+                        </Box>
+                        <Box sx={{width: '50%', borderRadius: 1, textAlign: 'right'}}>
+                            {dayList&&Object.keys(dayList).filter((item: any)=>(item.includes('id')&&(dayList[item]===2))).map((item: string)=>
+                            <Typography sx={{backgroundColor: '#ffc7ce', padding: 1, boxShadow: '0 0 3px #ffc7ce'}} key={item} color="error">{usersDB?.get(Number(item.slice(2)))?.first_name}</Typography>)}
+                        </Box>
+                    </Box>
+                    <Box sx={{display: 'flex', justifyContent: 'space-evenly'}}>
+                        <Button onClick={()=>YoNDay(activeDay, true)} sx={{margin:1}} variant="outlined" color="success" startIcon={<CheckIcon />}>Я свободна</Button>
+                        <Button onClick={()=>YoNDay(activeDay, false)} sx={{margin:1}} variant="outlined" color="error" endIcon={<CloseIcon />}>Я занята</Button>
+                    </Box>
                 </Paper>
                 <Button variant="contained" sx={{margin: 2}} onClick={async ()=>
                     setKudagoCardActive(true)
