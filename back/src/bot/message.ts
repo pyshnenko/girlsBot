@@ -88,20 +88,20 @@ export default async function message(ctx: Context, session: Session, bot: Teleg
             if (ctx.session?.make === 'newEvent' && ctx.session?.await === 'date') {
                 const dateText: string[] = ctx.message.text.replaceAll(' ', '').replaceAll(',', '.').split('.');
                 session.event = {...session.event, date: `${dateText[2]}-${dateText[1]}-${dateText[0]}`}
-                YNKeyboard(ctx, `Проверь:\n${ctx.session?.event?.name||''}\n${ctx.session?.event?.location||''}\n${(new Date(dateText[2]+'-'+dateText[1]+'-'+dateText[0]).toLocaleDateString())}`)
+                YNKeyboard(ctx, `Проверь:\n${ctx.session?.event?.name||''}\n${ctx.session?.event?.location||''}\n${ctx.session?.event?.linc||''}\n${(new Date(dateText[2]+'-'+dateText[1]+'-'+dateText[0]).toLocaleDateString())}`)
             }
             else if (ctx.session?.make === 'newEvent' && ctx.session?.await === 'location') {
                 session.await = 'date';
                 session.event = {name: session.event?.name, location: ctx.message.text, date: '', linc: session.event?.linc}
                 ctx.reply(`Введи дату в формате DD.MM.YYYY (через точку). Например: ${(new Date().getDate())}.${(new Date().getMonth()+1)}.${(new Date()).getFullYear()}`)
             }
-            else if (ctx.session?.make === 'newEvent' && ctx.session?.await === 'link') {
+            else if (ctx.session?.make === 'newEvent' && ctx.session?.await === 'linc') {
                 session.await = 'location';
                 session.event = {name: session.event?.name, location: '', date: '', linc: ctx.message.text}
                 ctx.reply(`напиши место проведения события`)
             }
             else if (ctx.session?.make === 'newEvent' && ctx.session?.await === 'name') {
-                session.await = 'link';
+                session.await = 'linc';
                 session.event = {name: ctx.message.text, location: '', date: '', linc: ''}
                 ctx.reply(`укажи коментарий или ссылку на событие`)
             }
