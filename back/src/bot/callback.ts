@@ -16,7 +16,7 @@ export default async function callback(ctx: Context, session: Session, bot: Tele
                 await ctx.reply('добавлено')
                 users.map(async (item: TGFrom) => await bot.telegram.sendMessage(
                     item.id, 
-                    `Тебя приглашают\n${(new Date(session?.event?.date||0)).toLocaleDateString()}\nна мероприятие:\n${session?.event?.name}`, 
+                    `Тебя приглашают\n${(new Date(session?.event?.date||0)).toLocaleDateString()}\nна мероприятие:\n${session?.event?.name}\nкоторое пройдет в:\n${session?.event?.location||''}`, 
                     Markup.inlineKeyboard([
                         Markup.button.callback('✅Да', `YES_event_${group}_${eventID}`),
                         Markup.button.callback('❌Нет', `NO_event_${group}_${eventID}`)
