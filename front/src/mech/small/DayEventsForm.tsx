@@ -57,7 +57,7 @@ export default function DayEventsForm(props: PropsType): React.JSX.Element {
             <Box onClick={()=>setActiveDay(-1)} sx={{width: '100vw', height: '100vh', backgroundColor: 'white', opacity: 0.85, position: 'absolute', top: 0, left: 0, zIndex: 99}} />
             <Paper elevation={3} sx={{position: 'relative', zIndex: 101, padding: 2}}>
                 <Typography textAlign={'center'}>{realDate.toLocaleDateString('ru')}</Typography>
-                {events ? <Paper elevation={6} sx={{margin: 2, padding: 2}}>
+                {events ? <Paper elevation={6} sx={{margin: 2, padding: 2, wordBreak: 'break-all', maxWidth: '95vw'}}>
                     <Typography>{events.namestring}</Typography>
                     <Typography>{(new Date(events.dateevent)).toLocaleDateString()}</Typography>
                     <Typography>{events.place||'Где-то'}</Typography>
