@@ -88,12 +88,17 @@ export default async function message(ctx: Context, session: Session, bot: Teleg
             if (ctx.session?.make === 'newEvent' && ctx.session?.await === 'date') {
                 const dateText: string[] = ctx.message.text.replaceAll(' ', '').replaceAll(',', '.').split('.');
                 session.event = {...session.event, date: `${dateText[2]}-${dateText[1]}-${dateText[0]}`}
-                YNKeyboard(ctx, `Проверь:\n${ctx.session?.event?.name||''}\n${(new Date(dateText[2]+'-'+dateText[1]+'-'+dateText[0]).toLocaleDateString())}`)
+                YNKeyboard(ctx, `Проверь:\n${ctx.session?.event?.name||''}\n${ctx.session?.event?.location||''}\n${(new Date(dateText[2]+'-'+dateText[1]+'-'+dateText[0]).toLocaleDateString())}`)
+            }
+            else if (ctx.session?.make === 'newEvent' && ctx.session?.await === 'location') {
+                session.await = 'date';
+                session.event = {name: session.event?.name, location: ctx.message.text, date: ''}
+                ctx.reply(`Введи дату в формате DD.MM.YYYY (через точку). Например: ${(new Date().getDate())}.${(new Date().getMonth()+1)}.${(new Date()).getFullYear()}`)
             }
             else if (ctx.session?.make === 'newEvent' && ctx.session?.await === 'name') {
-                session.await = 'date';
-                session.event = {name: ctx.message.text, date: ''}
-                ctx.reply(`Введи дату в формате DD.MM.YYYY (через точку). Например: ${(new Date().getDate())}.${(new Date().getMonth()+1)}.${(new Date()).getFullYear()}`)
+                session.await = 'location';
+                session.event = {name: ctx.message.text, location: '', date: ''}
+                ctx.reply(`напиши место проведения события`)
             }
             else if ((ctx.session?.make === 'freeDay') || (ctx.session?.make === 'busyDay')) {
                 const dayArray: string[] = ctx.message.text.replaceAll(' ', ',').split(',').filter((item: string)=>Number(item));

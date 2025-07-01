@@ -11,7 +11,7 @@ export default async function callback(ctx: Context, session: Session, bot: Tele
         const group = await sql.active.getActiveDate(ctx.from.id);
         if (session?.make === 'newEvent') {
             if (group) {
-                const eventID: number = (await sql.event.addEvent(ctx.from.id, session?.event?.name||'', new Date(session?.event?.date||0), '', '', group))||0;
+                const eventID: number = (await sql.event.addEvent(ctx.from.id, session?.event?.name||'', new Date(session?.event?.date||0), session?.event?.location||'', '', group))||0;
                 const users: TGFrom[] = await sql.user.userSearch({}, group);
                 await ctx.reply('добавлено')
                 users.map(async (item: TGFrom) => await bot.telegram.sendMessage(

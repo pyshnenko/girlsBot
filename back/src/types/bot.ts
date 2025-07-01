@@ -5,6 +5,7 @@ import { CallbackQuery, Message } from 'telegraf/typings/core/types/typegram';
 export type Session = {
     event?: {
         name?: string,
+        location?: string,
         date: Date|number|string
     },
     date?: {
