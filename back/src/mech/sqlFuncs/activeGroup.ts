@@ -21,10 +21,14 @@ export default class SQLActiveDate {
 
     setActiveDate = async (id: number, group: number): Promise<boolean> => {
         try {
-            await this.connection.query(`update ActiveTable set groupId=${group} where tgId=${id}`)
+            const checkGroup = ((await this.connection.query(`select groupId from ActiveTable where tgId=${id}`))[0] as {groupId: number}[])
+            checkGroup.length > 0 ? await this.connection.query(`update ActiveTable set groupId=${group} where tgId=${id}`) :
+            await this.connection.query(`insert ActiveTable(tgId, groupId) values(${id}, ${group})`)
             return true
         }
         catch(e) {
+            console.log('error setActiveGroup')
+            console.log(e)
             try {
                 await this.connection.query(`insert ActiveTable(tgId, groupId) values(${id}, ${group})`)
                 return true

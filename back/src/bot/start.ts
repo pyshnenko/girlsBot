@@ -13,6 +13,7 @@ export default async function start(ctx: Context, session: Session): Promise<Ses
     }
     else {
         const group = await sql.active.getActiveDate(ctx.from.id);
+        console.log(group)
         if (group) {
             checkUser = await sql.user.userCheck(ctx.from.id, group);
             GroupKeyboard(ctx, 'Держи клавиатурку', group, (typeof(checkUser)==='object'&&checkUser.admin))

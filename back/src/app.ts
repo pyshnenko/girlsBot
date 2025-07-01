@@ -36,7 +36,7 @@ bot.on('message', async (ctx: any) => {
     ctx.session = await message((ctx as Context), (ctx as Context).session, bot);
 })
 
-//bot.launch();
+bot.launch();
 
 bot.catch((err: any)=>console.log('Что-то с ботом' + String(err)));
 
