@@ -6,6 +6,7 @@ export type Session = {
     event?: {
         name?: string,
         location?: string,
+        linc?: string,
         date: Date|number|string
     },
     date?: {

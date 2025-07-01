@@ -92,13 +92,18 @@ export default async function message(ctx: Context, session: Session, bot: Teleg
             }
             else if (ctx.session?.make === 'newEvent' && ctx.session?.await === 'location') {
                 session.await = 'date';
-                session.event = {name: session.event?.name, location: ctx.message.text, date: ''}
+                session.event = {name: session.event?.name, location: ctx.message.text, date: '', linc: session.event?.linc}
                 ctx.reply(`Введи дату в формате DD.MM.YYYY (через точку). Например: ${(new Date().getDate())}.${(new Date().getMonth()+1)}.${(new Date()).getFullYear()}`)
             }
-            else if (ctx.session?.make === 'newEvent' && ctx.session?.await === 'name') {
+            else if (ctx.session?.make === 'newEvent' && ctx.session?.await === 'link') {
                 session.await = 'location';
-                session.event = {name: ctx.message.text, location: '', date: ''}
+                session.event = {name: session.event?.name, location: '', date: '', linc: ctx.message.text}
                 ctx.reply(`напиши место проведения события`)
+            }
+            else if (ctx.session?.make === 'newEvent' && ctx.session?.await === 'name') {
+                session.await = 'link';
+                session.event = {name: ctx.message.text, location: '', date: '', linc: ''}
+                ctx.reply(`укажи коментарий или ссылку на событие`)
             }
             else if ((ctx.session?.make === 'freeDay') || (ctx.session?.make === 'busyDay')) {
                 const dayArray: string[] = ctx.message.text.replaceAll(' ', ',').split(',').filter((item: string)=>Number(item));

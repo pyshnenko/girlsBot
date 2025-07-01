@@ -11,12 +11,12 @@ export default async function callback(ctx: Context, session: Session, bot: Tele
         const group = await sql.active.getActiveDate(ctx.from.id);
         if (session?.make === 'newEvent') {
             if (group) {
-                const eventID: number = (await sql.event.addEvent(ctx.from.id, session?.event?.name||'', new Date(session?.event?.date||0), session?.event?.location||'', '', group))||0;
+                const eventID: number = (await sql.event.addEvent(ctx.from.id, session?.event?.name||'', new Date(session?.event?.date||0), session?.event?.location||'', session?.event?.linc||'', group))||0;
                 const users: TGFrom[] = await sql.user.userSearch({}, group);
                 await ctx.reply('добавлено')
                 users.map(async (item: TGFrom) => await bot.telegram.sendMessage(
                     item.id, 
-                    `Тебя приглашают\n${(new Date(session?.event?.date||0)).toLocaleDateString()}\nна мероприятие:\n${session?.event?.name}\nкоторое пройдет в:\n${session?.event?.location||''}`, 
+                    `Тебя приглашают\n${(new Date(session?.event?.date||0)).toLocaleDateString()}\nна мероприятие:\n${session?.event?.name}\nкоторое пройдет в:\n${session?.event?.location||''}\n${session?.event?.linc||''}`, 
                     Markup.inlineKeyboard([
                         Markup.button.callback('✅Да', `YES_event_${group}_${eventID}`),
                         Markup.button.callback('❌Нет', `NO_event_${group}_${eventID}`)
