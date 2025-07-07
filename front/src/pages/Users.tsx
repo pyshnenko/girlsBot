@@ -49,15 +49,15 @@ export default function Users(props: PropsType):React.JSX.Element {
         if (id) http.set(id);
         if (group) api.setGroup(Number(group))
         updData();
-
-        tg.SecondaryButton
-            .show()
-            .onClick(()=>{
-                tg.sendData(JSON.stringify({do: 'close'}))
+        if (tg)
+            tg.SecondaryButton
+                .show()
+                .onClick(()=>{
+                    tg.sendData(JSON.stringify({do: 'close'}))
+                })
+                .setParams({
+                text: `Закрыть`
             })
-            .setParams({
-            text: `Закрыть`
-        })
     },[])
 
     const updData = () => {

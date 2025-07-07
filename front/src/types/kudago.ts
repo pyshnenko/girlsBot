@@ -1,3 +1,5 @@
+import path from "path"
+
 export interface KudaEvent {
     dates: {
         start: number,
@@ -25,3 +27,5 @@ export interface KudaEventsList {
     previous: string|null,
     results: KudaEvent[]
 }
+
+//type test = T extends string ? string : number;

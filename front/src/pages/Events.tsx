@@ -53,15 +53,15 @@ export default function Events(props: PropsType):React.JSX.Element {
             setMyId(Number(id));
         }
         setActiveMonth(new Date())
-
-        tg.SecondaryButton
-            .show()
-            .onClick(()=>{
-                tg.sendData(JSON.stringify({do: 'close'}))
+        if (tg)
+            tg.SecondaryButton
+                .show()
+                .onClick(()=>{
+                    tg.sendData(JSON.stringify({do: 'close'}))
+                })
+                .setParams({
+                text: `Закрыть`
             })
-            .setParams({
-            text: `Закрыть`
-        })
 
     }, [])
 
