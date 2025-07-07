@@ -12,9 +12,13 @@
 
 ## техническое:
 БД: MySQL
+
 API: NodeJs + ts + express + axios + cron
+
 UI: ReactTS + MUI + jest + react-dom
+
 бот: telegraf
+
 proxy: nginx
 
 ## swagger 
