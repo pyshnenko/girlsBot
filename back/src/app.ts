@@ -9,7 +9,6 @@ import message from '@/bot/message';
 import callback from '@/bot/callback';
 import app from '@/api';
 import { botLogger } from '@/winston/logger';
-import { logger } from 'express-winston';
 bot.use(session());
 
 bot.telegram.setMyCommands([

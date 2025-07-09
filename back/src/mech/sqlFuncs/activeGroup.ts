@@ -1,4 +1,13 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
 import { Connection } from "mysql2/promise";
+
+import { Sequelize } from "sequelize";
+
+const sequelize = new Sequelize("vikaGirls", String(process.env.SQLLOGIN), String(process.env.SQLPASS), {
+    dialect: "mysql",
+    host: String(process.env.SQLHOST)
+});
 
 export default class SQLActiveDate {
     connection: Connection;
