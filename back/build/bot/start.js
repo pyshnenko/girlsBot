@@ -12,22 +12,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkAuth = checkAuth;
+exports.default = start;
 const sql_1 = __importDefault(require("@/mech/sql"));
-function checkAuth(tok_1) {
-    return __awaiter(this, arguments, void 0, function* (tok, admin = false) {
-        const userId = Number((tok === null || tok === void 0 ? void 0 : tok.slice(7)) || 0);
-        if (!userId)
-            return { code: 401 };
-        else {
-            const sqlCheck = yield sql_1.default.user.userCheck(userId);
-            if (sqlCheck === false)
-                return { code: 401 };
-            else if (sqlCheck !== true && !sqlCheck.admin)
-                return admin ? { code: 403 } : { code: 200, tg: sqlCheck, id: userId };
-            else {
-                return sqlCheck === true ? { code: 200, id: userId } : { code: 200, tg: sqlCheck, id: userId };
-            }
+const keyboard_1 = require("../mech/keyboard");
+function start(ctx, session) {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log('start');
+        session = {};
+        let checkUser = yield sql_1.default.user.userCheck(ctx.from.id);
+        if (checkUser === false) {
+            sql_1.default.user.userAdd(null, ctx.from.id, false, false, ctx.from);
         }
+        else {
+            const group = yield sql_1.default.active.getActiveDate(ctx.from.id);
+            console.log(group);
+            if (group) {
+                checkUser = yield sql_1.default.user.userCheck(ctx.from.id, group);
+                (0, keyboard_1.GroupKeyboard)(ctx, 'Держи клавиатурку', group, (typeof (checkUser) === 'object' && checkUser.admin));
+            }
+            else
+                (0, keyboard_1.searchGroupKeyboard)(ctx);
+        }
+        return session;
     });
 }

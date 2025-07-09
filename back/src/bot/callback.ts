@@ -1,7 +1,7 @@
-import { Context, Session } from "types/bot";
-import { GroupKeyboard } from "mech/keyboard";
-import sql from "mech/sql";
-import { TGFrom } from "types/tgTypes";
+import { Context, Session } from "@/types/bot";
+import { GroupKeyboard } from "@/mech/keyboard";
+import sql from "@/mech/sql";
+import { TGFrom } from "@/types/tgTypes";
 import { Markup, Telegraf } from "telegraf";
 
 export default async function callback(ctx: Context, session: Session, bot: Telegraf) {

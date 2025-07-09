@@ -41,10 +41,11 @@ exports.dateToSql = dateToSql;
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 const mysql2_1 = __importDefault(require("mysql2"));
-const groups_1 = __importDefault(require("./sqlFuncs/groups"));
-const users_1 = __importDefault(require("./sqlFuncs/users"));
-const events_1 = __importDefault(require("./sqlFuncs/events"));
-const calendar_1 = __importDefault(require("./sqlFuncs/calendar"));
+const groups_1 = __importDefault(require("@/mech/sqlFuncs/groups"));
+const users_1 = __importDefault(require("@/mech/sqlFuncs/users"));
+const events_1 = __importDefault(require("@/mech/sqlFuncs/events"));
+const calendar_1 = __importDefault(require("@/mech/sqlFuncs/calendar"));
+const activeGroup_1 = __importDefault(require("@/mech/sqlFuncs/activeGroup"));
 exports.connection = mysql2_1.default.createConnection({
     host: String(process.env.SQLHOST),
     port: 3306,
@@ -73,5 +74,6 @@ exports.default = {
     calendar: new calendar_1.default(exports.connection),
     event: new events_1.default(exports.connection),
     user: new users_1.default(exports.connection),
-    group: new groups_1.default(exports.connection)
+    group: new groups_1.default(exports.connection),
+    active: new activeGroup_1.default(exports.connection)
 };

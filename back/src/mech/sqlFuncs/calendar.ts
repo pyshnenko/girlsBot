@@ -1,6 +1,6 @@
 import { Connection } from "mysql2/promise";
-import { calendar } from "../../types/sql";
-import { dateToSql } from "../sql";
+import { calendar } from "@/types/sql";
+import { dateToSql } from "@/mech/sql";
 
 export default class SQLCalendar {
     connection: Connection;

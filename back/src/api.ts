@@ -1,9 +1,12 @@
 import express, { Express, Request, Response } from "express";
 import swaggerUi from "swagger-ui-express";
-import { checkAuth } from './mech/funcs';
-import sql from './mech/sql';
+import { checkAuth } from '@/mech/funcs';
+import sql from '@/mech/sql';
 import { TGFrom, TGCheck } from "./types/tgTypes";
 import axios from "axios";
+import baseURL from "@/consts/baseURL";
+import expressWinston from "express-winston";
+import {logger} from "@/winston/logger";
 
 const app: Express = express();
 
@@ -11,7 +14,7 @@ export default app;
 
 const options = {
   swaggerOptions: {
-    url: 'https://spamigor.ru/demoFiles/girlsEvents/swagger.json',
+    url: baseURL.swagger,
     swaggerOptions: {
       validatorUrl : null
     }
@@ -21,6 +24,8 @@ const options = {
 app.use('/girls/docs', swaggerUi.serve, swaggerUi.setup(null, options));
 
 app.use(express.json());
+
+app.use(expressWinston.logger(logger))
 
 app.get('/girls/api/events', async (req: Request, res: Response) => {
     const code = await checkAuth(req.headers.authorization || '');
@@ -174,10 +179,10 @@ app.put("/girls/api/users/:tgid", async (req: Request, res: Response) => {
 
 app.get("/girls/api/kudago/events", async (req: Request, res: Response) => {
     if (Number(req.query?.from) && Number(req.query?.to)) {
-        const uri = `events/?fields=id,images,dates,title,short_title,place,price,description,site_url&location=msk&actual_since=${Math.floor(Number(req.query?.from))}&actual_until=${Math.floor(Number(req.query?.to))}&categories=festival,concert&page_size=100`;
         try {
-            const result = await axios.get('https://kudago.com/public-api/v1.4/'+ uri)
-            //console.log(result)
+            const result = await axios.get(baseURL.createKudagoReq(
+                Math.floor(Number(req.query?.from)), 
+                Math.floor(Number(req.query?.to))));
             res.json(result.data)
         } catch (e) {
             res.sendStatus(500)

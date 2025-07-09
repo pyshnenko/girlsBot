@@ -45,28 +45,33 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+require("module-alias/register");
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
-const { Telegraf } = require('telegraf');
-var jwt = require('jsonwebtoken');
-const bot = new Telegraf(String(process.env.TGTOK));
 const telegraf_1 = require("telegraf");
-const start_1 = __importDefault(require("./bot/start"));
-const message_1 = __importDefault(require("./bot/message"));
-const callback_1 = __importDefault(require("./bot/callback"));
-const api_1 = __importDefault(require("./api"));
+const bot = new telegraf_1.Telegraf(String(process.env.TGTOK));
+const start_1 = __importDefault(require("@/bot/start"));
+const message_1 = __importDefault(require("@/bot/message"));
+const callback_1 = __importDefault(require("@/bot/callback"));
+const api_1 = __importDefault(require("@/api"));
 bot.use((0, telegraf_1.session)());
 bot.telegram.setMyCommands([
-    { command: '/start', description: 'Старт' },
+    { command: '/start', description: 'Начинаем начинать' },
+    { command: '/support', description: 'Поддержка' },
+    { command: '/tariff', description: 'Денюшки' },
+    { command: '/info', description: 'Как пользоваться?' }
 ]);
 bot.start((ctx) => __awaiter(void 0, void 0, void 0, function* () {
     ctx.session = yield (0, start_1.default)(ctx, ctx.session);
 }));
+bot.on('photo', (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(ctx.message);
+}));
 bot.on('callback_query', (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    ctx.session = yield (0, callback_1.default)(ctx, ctx.session);
+    ctx.session = yield (0, callback_1.default)(ctx, ctx.session, bot);
 }));
 bot.on('message', (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    ctx.session = yield (0, message_1.default)(ctx, ctx.session);
+    ctx.session = yield (0, message_1.default)(ctx, ctx.session, bot);
 }));
 //bot.launch();
 bot.catch((err) => console.log('Что-то с ботом' + String(err)));

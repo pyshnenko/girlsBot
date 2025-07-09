@@ -1,21 +1,11 @@
 import { Markup } from 'telegraf';
+import keyboardButtonsCreator from '@/mech/helpers/keyboardButtonsCreater';
 
 
-export function GroupKeyboard(ctx: any, text: string, group: number, admin?: boolean) {
-    console.log('keyboard')
-    console.log(`https://spamigor.ru/vika2/users?id=${ctx.from.id}&group=${group}`)
-
-    let firstLine: {text: string, web_app?: {url: string}}[] = [{text: '📆Календарь', web_app: {url: `https://spamigor.ru/vika2/events?id=${ctx.from.id}&group=${group}`}}]
-    if (admin) {
-        firstLine.push({text: '📝Список пользователей', web_app: {url: `https://spamigor.ru/vika2/users?id=${ctx.from.id}&group=${group}`}})
-        firstLine.push({text: '➕Создать событие'})
-    }
-    firstLine.push({text: 'Выбрать другую группу'})
-    firstLine.push({text: '🖌Добавить свободные даты в календарь'})
-    firstLine.push({text: '🖍Добавить занятые даты в календарь'})
+export function GroupKeyboard(ctx: any, text: string, group: number, admin?: boolean) {    
 
     ctx.replyWithHTML(text, Markup.keyboard(
-        firstLine
+        keyboardButtonsCreator(ctx.from.id, group, admin||false)
     ).resize())
 }
 

@@ -1,11 +1,11 @@
-import { Context, Session } from "types/bot";
+import { Context, Session } from "@/types/bot";
 import { Markup, Telegraf } from "telegraf";
-import { GroupKeyboard, searchGroupKeyboard } from "mech/keyboard";
-import { TGCheck, TGFrom } from "types/tgTypes";
-import { groupSearchResult } from "types/sql";
-import { getMonth } from "consts/tg";
-import { YNKeyboard } from "mech/keyboard";
-import sql from "mech/sql";
+import { GroupKeyboard, searchGroupKeyboard } from "@/mech/keyboard";
+import { TGCheck, TGFrom } from "@/types/tgTypes";
+import { groupSearchResult } from "@/types/sql";
+import { getMonth } from "@/consts/tg";
+import { YNKeyboard } from "@/mech/keyboard";
+import sql from "@/mech/sql";
 
 export default async function message(ctx: Context, session: Session, bot: Telegraf) {
     //let session = {...ctx.session};

@@ -1,11 +1,11 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import mysql from "mysql2";
-import SQLGroup from 'mech/sqlFuncs/groups';
-import SQLUsers from 'mech/sqlFuncs/users';
-import SQLEvents from 'mech/sqlFuncs/events';
-import SQLCalendar from 'mech/sqlFuncs/calendar';
-import SQLActiveGroup from 'mech/sqlFuncs/activeGroup';
+import SQLGroup from '@/mech/sqlFuncs/groups';
+import SQLUsers from '@/mech/sqlFuncs/users';
+import SQLEvents from '@/mech/sqlFuncs/events';
+import SQLCalendar from '@/mech/sqlFuncs/calendar';
+import SQLActiveGroup from '@/mech/sqlFuncs/activeGroup';
 
 export const connection = mysql.createConnection({
     host: String(process.env.SQLHOST),

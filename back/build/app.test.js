@@ -39,7 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 const supertest_1 = __importDefault(require("supertest"));
-const api_1 = __importDefault(require("./api"));
+const api_1 = __importDefault(require("@/api"));
 it("test basic function", function (done) {
     (0, supertest_1.default)(api_1.default)
         .get("/girls/api/startCheck")
