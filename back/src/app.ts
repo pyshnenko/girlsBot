@@ -40,6 +40,6 @@ bot.on('message', async (ctx: any) => {
 
 bot.launch();
 
-bot.catch((err: any)=>{botLogger.error(err)});
+bot.catch((err: any)=>{botLogger.log('error', err)});
 
 app.listen(8900, ()=>{botLogger.log('info', 'start on 8900')})
