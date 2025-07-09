@@ -1,5 +1,5 @@
 import { Context as TGContext } from 'telegraf';
-import { TGFrom } from './tgTypes';
+import { TGFrom } from 'types/tgTypes';
 import { CallbackQuery, Message } from 'telegraf/typings/core/types/typegram';
 
 export type Session = {

@@ -1,5 +1,5 @@
 import { Connection } from "mysql2/promise";
-import { groupSearchResult } from "../../types/sql";
+import { groupSearchResult } from "types/sql";
 
 export default class SQLGroup {
     connection: Connection;

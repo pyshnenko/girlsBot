@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { TGCheck } from "../types/tgTypes";
-import sql from "./sql";
+import { TGCheck } from "types/tgTypes";
+import sql from "mech/sql";
 
 export async function checkAuth(tok: string, admin: boolean = false): Promise<{code: number, tg?: TGCheck, id?: number}> {
     const userId: number = Number(tok?.slice(7) || 0)

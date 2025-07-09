@@ -1,7 +1,6 @@
-import { Context, Session } from "../types/bot";
-import { TGCheck } from "../types/tgTypes";
-import { Markup } from "telegraf";
-import sql from "../mech/sql";
+import { Context, Session } from "types/bot";
+import { TGCheck } from "types/tgTypes";
+import sql from "mech/sql";
 import { searchGroupKeyboard, GroupKeyboard } from "../mech/keyboard";
 
 export default async function start(ctx: Context, session: Session): Promise<Session> {

@@ -1,8 +1,6 @@
 import { Connection } from "mysql2/promise";
-import { TGFrom, TGCheck, FullTGForm } from "../../types/tgTypes";
-import { DataForUserSearch } from "../../types/tgTypes";
-import { GroupsSQL } from "../../types/group";
-import { groupSearchResult } from "../../types/sql";
+import { TGFrom, TGCheck, FullTGForm } from "types/tgTypes";
+import { DataForUserSearch } from "types/tgTypes";
 
 type UserOrNot<T> = T extends number ? Promise<false | TGCheck> : Promise<boolean>
 

@@ -1,6 +1,6 @@
 import { Connection } from "mysql2/promise";
-import { eventListType } from "../../types/sql";
-import { dateToSql } from "../sql";
+import { eventListType } from "types/sql";
+import { dateToSql } from "mech/sql";
 
 export default class SQLEvents {
     connection: Connection;
