@@ -10,9 +10,6 @@ import sql from "@/mech/sql";
 export default async function message(ctx: Context, session: Session, bot: Telegraf) {
     //let session = {...ctx.session};
     let checkUser: boolean | TGCheck = await sql.user.userCheck(ctx.from.id);
-    console.log('start');
-    console.log(checkUser)
-    console.log(ctx.session)
     switch (ctx.message.text) {
         case '/info': {
             ctx.reply(Math.floor(Math.random()*10)%2?'Там-сям, туда-сюда':'Сбожьей помощью');
@@ -88,12 +85,15 @@ export default async function message(ctx: Context, session: Session, bot: Teleg
             if (ctx.session?.make === 'newEvent' && ctx.session?.await === 'date') {
                 const dateText: string[] = ctx.message.text.replaceAll(' ', '').replaceAll(',', '.').split('.');
                 session.event = {...session.event, date: `${dateText[2]}-${dateText[1]}-${dateText[0]}`}
-                YNKeyboard(ctx, `Проверь:\n${ctx.session?.event?.name||''}\n${ctx.session?.event?.location||''}\n${ctx.session?.event?.linc||''}\n${(new Date(dateText[2]+'-'+dateText[1]+'-'+dateText[0]).toLocaleDateString())}`)
+                YNKeyboard(ctx, `Проверь:\n${ctx.session?.event?.name||''}\n`+
+                    `${ctx.session?.event?.location||''}\n${ctx.session?.event?.linc||''}\n`+
+                    `${(new Date(dateText[2]+'-'+dateText[1]+'-'+dateText[0]).toLocaleDateString())}`)
             }
             else if (ctx.session?.make === 'newEvent' && ctx.session?.await === 'location') {
                 session.await = 'date';
                 session.event = {name: session.event?.name, location: ctx.message.text, date: '', linc: session.event?.linc}
-                ctx.reply(`Введи дату в формате DD.MM.YYYY (через точку). Например: ${(new Date().getDate())}.${(new Date().getMonth()+1)}.${(new Date()).getFullYear()}`)
+                ctx.reply(`Введи дату в формате DD.MM.YYYY (через точку). Например: `+
+                    `${(new Date().getDate())}.${(new Date().getMonth()+1)}.${(new Date()).getFullYear()}`)
             }
             else if (ctx.session?.make === 'newEvent' && ctx.session?.await === 'linc') {
                 session.await = 'location';
@@ -108,14 +108,12 @@ export default async function message(ctx: Context, session: Session, bot: Teleg
             else if ((ctx.session?.make === 'freeDay') || (ctx.session?.make === 'busyDay')) {
                 const dayArray: string[] = ctx.message.text.replaceAll(' ', ',').split(',').filter((item: string)=>Number(item));
                 let mess = '';
-                console.log(session)
                 session.result = dayArray;
                 dayArray.forEach((item: string) => {mess+=(new Date(`${session?.date?.year}-${session?.date?.month}-${item}`).toLocaleDateString())+'\n'})
                 YNKeyboard(ctx, mess)
             }
             else if (ctx.session?.make==='search group') {
                 const result = await sql.group.searchGroup(Number(ctx.message.text), ctx.from.id)
-                console.log(result);
                 if (result) {
                     const searchMe = result.filter((item: groupSearchResult)=>item.tgId===ctx.from.id);
                     if (searchMe.length && searchMe[0].register){
@@ -140,7 +138,6 @@ export default async function message(ctx: Context, session: Session, bot: Teleg
             else if (ctx.message.text.includes('All') && ctx.from.id===Number(process.env.ADMIN)) {
                 const userList = await sql.user.userSearch({},0)
                 userList.map((item: TGFrom) => bot.telegram.sendMessage(item.id, ctx.message.text.slice(5)))
-                console.log(userList)
             }
         }
     }

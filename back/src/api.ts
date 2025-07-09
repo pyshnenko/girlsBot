@@ -36,13 +36,10 @@ app.get('/girls/api/events', async (req: Request, res: Response) => {
             const group = Number(req.query?.group);
             if (from.toJSON()&&to.toJSON()) {
                 const resp = await sql.event.getEvent(group, from, to);
-                console.log(resp)
                 res.json(resp)
             }
             else if (from.toJSON()) {
                 const resp = await sql.event.getEvent(group, from);
-                console.log('fff')
-                console.log(resp)
                 res.status(200).json(resp)
             }
             else res.sendStatus(418)
@@ -117,7 +114,6 @@ app.post("/girls/api/calendar/:id", async (req: Request, res: Response) => {
     const code = await checkAuth(req.headers.authorization || '');
     if (code.code === 200) {
         if (Array.isArray(req.body.freeDays) && Array.isArray(req.body.busyDays)){
-            console.log(req.body.freeDays)
             await sql.calendar.setCalendar(req.body.freeDays, code.id||0, 1, Number(req.params['id']))
             await sql.calendar.setCalendar(req.body.busyDays, code.id||0, 2, Number(req.params['id']))
             res.json(true)

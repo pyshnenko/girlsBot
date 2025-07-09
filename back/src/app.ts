@@ -8,6 +8,8 @@ import {Context} from '@/types/bot';
 import message from '@/bot/message';
 import callback from '@/bot/callback';
 import app from '@/api';
+import { botLogger } from '@/winston/logger';
+import { logger } from 'express-winston';
 bot.use(session());
 
 bot.telegram.setMyCommands([
@@ -18,6 +20,7 @@ bot.telegram.setMyCommands([
 ])
 
 bot.start(async (ctx: any) => {
+    botLogger.log('debug', JSON.stringify({message: 'start', id: ctx.from.id, session: ctx.session}))
     ctx.session = await start(ctx as Context, (ctx as Context).session);
 });
 
@@ -26,15 +29,17 @@ bot.on('photo', async (ctx)=>{
 })
 
 bot.on('callback_query', async (ctx: any) => {
+    botLogger.log('debug', JSON.stringify({...ctx.callbackQuery, id: ctx.from.id, session: ctx.session}))
     ctx.session = await callback(ctx as Context, (ctx as Context).session, bot);
 })
 
 bot.on('message', async (ctx: any) => {
+    botLogger.log('debug', JSON.stringify({...ctx.message, id: ctx.from.id, session: ctx.session}))
     ctx.session = await message((ctx as Context), (ctx as Context).session, bot);
 })
 
-//bot.launch();
+bot.launch();
 
-bot.catch((err: any)=>console.log('Что-то с ботом' + String(err)));
+bot.catch((err: any)=>{botLogger.error(err)});
 
-app.listen(8900, ()=>{console.log('Hello on 8900')})
+app.listen(8900, ()=>{botLogger.log('info', 'start on 8900')})

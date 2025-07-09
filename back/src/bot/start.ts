@@ -4,7 +4,6 @@ import sql from "@/mech/sql";
 import { searchGroupKeyboard, GroupKeyboard } from "../mech/keyboard";
 
 export default async function start(ctx: Context, session: Session): Promise<Session> {
-    console.log('start')
     session = {};
     let checkUser: boolean | TGCheck = await sql.user.userCheck(ctx.from.id);
     if (checkUser === false) {
@@ -12,7 +11,6 @@ export default async function start(ctx: Context, session: Session): Promise<Ses
     }
     else {
         const group = await sql.active.getActiveDate(ctx.from.id);
-        console.log(group)
         if (group) {
             checkUser = await sql.user.userCheck(ctx.from.id, group);
             GroupKeyboard(ctx, 'Держи клавиатурку', group, (typeof(checkUser)==='object'&&checkUser.admin))
