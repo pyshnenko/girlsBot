@@ -1,10 +1,10 @@
-import React, {useState, useEffect, memo} from "react";
+import React, {useState, useEffect, memo, useMemo} from "react";
 import { Box, Typography, Avatar, createTheme, Theme } from "@mui/material";
 import { Calendar, EventListType, eventListTypeNew, CalendarNew } from "../../types/events";
 import { green, pink, orange } from '@mui/material/colors';
 import { TGFrom } from "../../types/users";
 import '../../styles/bat.scss';
-import { calendarBoxes } from "../../styles/themes";
+import useColorGenerator from "../../hooks/useColorGenerator";
 
 interface PropsType {
     dayEvents: eventListTypeNew|null,
@@ -20,62 +20,18 @@ export default memo(function CalendarDay(props: PropsType): React.JSX.Element {
 
     const {dayEvents, daysYN, usersDB, dayOff, days, setActiveDay, myId} = props
 
-    const [daysKeys, setDaysKeys] = useState<{total: number, free: (number)[], buzy: (number)[]}>()
+    const [daysKeys, setDaysKeys] = useState<{total: number, free: number[], buzy: number[]}>()
 
     useEffect(()=>{
         if (daysYN) setDaysKeys({total: daysYN.total, free: daysYN.free, buzy: daysYN.buzy})
         else setDaysKeys({total:-1, free: [], buzy: []})
     }, [daysYN])
 
-    const themeCreator = () => {
-        if (daysKeys===undefined || daysKeys.total===-1)
-            return  {
-            borderBottom: 'none',
-            width: (100/8)+'vw', 
-            height: 100/8+'vw', 
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-            ...calendarBoxes
-        }
-        else if (daysKeys.total===daysKeys.free.length) return {
-            borderBottom: 'none',
-            width: (100/8)+'vw', 
-            height: 100/8+'vw', 
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-            ...calendarBoxes,
-            backgroundColor: 'rgb(77 157 195/0.8)'
-        }
-        else return {
-            borderBottom: 'none',
-            width: (100/8)+'vw', 
-            height: 100/8+'vw', 
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-            ...calendarBoxes,
-            backgroundColor: `rgb(${colorGenerator(daysKeys).r} ${colorGenerator(daysKeys).g} ${colorGenerator(daysKeys).b} /0.8)`
-        }
-    }
-
-    const colorGenerator = (daysKeys: {total: number, free: (number)[], buzy: (number)[]}) => {
-        switch (Math.floor((((daysKeys.free.length-daysKeys.buzy.length)+daysKeys.total)/(2*daysKeys.total)*100)/25)*25) {
-            case 0: return rgbColor['0%']
-            case 25: return rgbColor['25%']
-            case 50: return rgbColor['50%']
-            case 75: return rgbColor['75%']
-            case 100: return rgbColor['100%']
-            default: return rgbColor['50%']
-        }
-    }
+    const themeCreatorGenerator = useColorGenerator();
+    const themeCreator = themeCreatorGenerator(daysKeys)
 
     return (
-        <Box onClick={()=>setActiveDay(days)} sx={themeCreator()}>
+        <Box onClick={()=>setActiveDay(days)} sx={themeCreator}>
             <Box sx={{position: 'absolute', borderRadius: '50%', width: 100/7+'vw', height: 100/7+'vw', zIndex: -1, opacity: 0.75}} />
             <Box>
                 <Box sx={{width: 100/8+'vw', height: 100/25+'vw', display: 'flex', alignItems: 'center', justifyContent: 'flex-end'}}>
@@ -89,26 +45,3 @@ export default memo(function CalendarDay(props: PropsType): React.JSX.Element {
         </Box>
     )
 })
-
-const calendarStyle = {
-    width: 100/21+'vw',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center'
-}
-
-/*const daysYNObjectKeys = (evt:CalendarNew):{ln: number, free: (string)[], buzy: (string)[]} => {
-    let keys: (string)[] = Object.keys(evt).filter((item: string)=>{
-        if (item!=='id' && item.includes(`id`)) return item as string
-    })
-    return {ln: keys.length, free: keys.filter((item:any)=>(evt[item]===1)), buzy: keys.filter((item:any)=>(evt[item]===2))}
-}*/
-
-const rgbColor = {
-    '100%': {r: 25, g: 154, b:82},
-    '75%': {r: 121, g:191, b:112},
-    '50%': {r: 252, g:241, b:152},
-    '25%': {r: 253, g:189, b:147},
-    '0%': {r: 253, g:163, b:144}
-}

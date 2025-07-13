@@ -11,7 +11,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CheckIcon from '@mui/icons-material/Check';
 import api from "../mech/api/api";
 import http from "../mech/api/http";
-import { AxiosResponse, AxiosError } from "axios";
+import { updData } from "./helpers/usersFuncs";
 import { TGFrom } from "../types/users";
 
 interface PropsType {
@@ -48,7 +48,7 @@ export default function Users(props: PropsType):React.JSX.Element {
         const group: string|null = uri.searchParams.get('group');
         if (id) http.set(id);
         if (group) api.setGroup(Number(group))
-        updData();
+        updData(setUsersList, setAdminsNum);
         if (tg)
             tg.SecondaryButton
                 .show()
@@ -59,14 +59,6 @@ export default function Users(props: PropsType):React.JSX.Element {
                 text: `Закрыть`
             })
     },[])
-
-    const updData = () => {
-        api.users.get().then((res: AxiosResponse)=>{
-            console.log(res.data)
-            setUsersList(res.data as TGFrom[])
-            setAdminsNum({nums: (res.data as TGFrom[]).filter((item: TGFrom)=>item.admin).length, myId: Number(http.get())})
-        }).catch((e:AxiosError)=>console.log(e))
-    }
 
     return (
         <div className={'header'}>
@@ -98,11 +90,11 @@ export default function Users(props: PropsType):React.JSX.Element {
                                 <TableCell sx={{padding: 0}}>                              
                                     {(!item.admin || adminsNum.nums>1 || item.id!==adminsNum.myId)&&<IconButton sx={{margin: 0}} color="success" onClick={async ()=>{
                                         await api.users.upd(item.id, {...item, register: true, admin: !item.admin})
-                                        updData();
+                                        updData(setUsersList, setAdminsNum);
                                     }}>{item.admin?<ArrowDownwardIcon />:<ArrowUpwardIcon />}</IconButton>}
                                     {(!item.admin || adminsNum.nums>1 || item.id!==adminsNum.myId || usersList.length===1)&&<IconButton sx={{margin: 0}} color="error" onClick={async ()=>{
                                         await api.users.delete(item.id);
-                                        updData();
+                                        updData(setUsersList, setAdminsNum);
                                     }}><DeleteIcon /></IconButton>}     
                                 </TableCell>
                               </TableRow>
@@ -142,11 +134,11 @@ export default function Users(props: PropsType):React.JSX.Element {
                                 <TableCell sx={{padding: 1}}>
                                     <IconButton sx={{margin: 1}} color="success" onClick={async ()=>{
                                         await api.users.upd(item.id, {...item, register: true})
-                                        updData();
+                                        updData(setUsersList, setAdminsNum);
                                     }}><CheckIcon /></IconButton>
                                     <IconButton color="error" onClick={async ()=>{
                                         await api.users.delete(item.id);
-                                        updData();
+                                        updData(setUsersList, setAdminsNum);
                                     }}><DeleteIcon /></IconButton>
                                 </TableCell>
                               </TableRow>
