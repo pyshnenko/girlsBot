@@ -16,8 +16,8 @@ export type FullTGForm = TGFrom & {
 }
 
 export interface TGCheck {
-    register: boolean,
-    admin: boolean
+    register: 1|0,
+    admin: 1|0
 }
 
 export interface DataForUserSearch {

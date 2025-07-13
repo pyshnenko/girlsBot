@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
 import { Box, Paper, Typography, IconButton, Button } from "@mui/material";
-import { EventListType, Calendar } from "../../types/events";
+import { EventListType, Calendar, eventListTypeNew, CalendarNew } from "../../types/events";
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import { TGFrom } from "../../types/users";
@@ -11,8 +11,8 @@ interface PropsType {
     activeDay: number,
     setActiveDay: (n: number)=>void,
     usersDB: Map<number, TGFrom>|undefined,
-    dayList: Calendar|null,
-    events: EventListType|null,
+    dayList: CalendarNew|null,
+    events: eventListTypeNew|null,
     activeMonth: Date
 }
 
@@ -28,8 +28,8 @@ export default function DayEventsForm(props: PropsType): React.JSX.Element {
         realDateBuf.setDate(activeDay)
         setRealDate(realDateBuf)
         console.log(events)
-        if (events)
-        console.log(Object.keys(events||{}).filter((item: any)=>{return (item.includes('id') && (events[item]===1))}))
+        //if (events)
+        //console.log(Object.keys(events||{}).filter((item: any)=>{return (item.includes('id') && (events[item]===1))}))
     }, [activeDay])
 
     const YoNevent = async (id: number, result: boolean) => {
@@ -48,7 +48,8 @@ export default function DayEventsForm(props: PropsType): React.JSX.Element {
             await api.calendar.YNday(result?[Number(realDate)]:[], result?[]:[Number(realDate)])
             setActiveDay(-1)
         } catch(e: any) {
-
+            console.log('YoNDay')
+            console.log(e)
         }
     }
 
@@ -68,24 +69,24 @@ export default function DayEventsForm(props: PropsType): React.JSX.Element {
                     </Box>
                     <Box sx={{display: 'flex', flexDirection: 'row'}}>
                         <Box sx={{width: '49%', textAlign: 'left', }}>
-                            {events&&Object.keys(events||{}).filter((item: any)=>{return (item.includes('id') && (events[item]===1))}).map((item: string)=>
-                                <Typography sx={{backgroundColor: '#c6efce', padding: 1, boxShadow: '0 0 3px #c6efce'}} color="success" key={item}>{usersDB?.get(Number(item.slice(2)))?.first_name}</Typography>)}
+                            {events&&events.free.map((item: number)=>
+                                <Typography sx={{backgroundColor: '#c6efce', padding: 1, boxShadow: '0 0 3px #c6efce'}} color="success" key={item}>{usersDB?.get(item)?.first_name}</Typography>)}
                         </Box>
                         <Box sx={{width: '49%', textAlign: 'right'}}>
-                            {events&&Object.keys(events||{}).filter((item: any)=>{return (item.includes('id') && (events[item]===2))}).map((item: string)=>
-                                <Typography sx={{backgroundColor: '#ffc7ce', padding: 1, boxShadow: '0 0 3px #ffc7ce'}} color="error" key={item}>{usersDB?.get(Number(item.slice(2)))?.first_name}</Typography>)}
+                            {events&&events.buzy.map((item: number)=>
+                                <Typography sx={{backgroundColor: '#ffc7ce', padding: 1, boxShadow: '0 0 3px #ffc7ce'}} color="error" key={item}>{usersDB?.get(item)?.first_name}</Typography>)}
                         </Box>
                     </Box>
                 </Paper>:<Typography textAlign={'center'}>Событий не планировалось</Typography>}
                 <Paper elevation={3} sx={{padding: 2, margin: '4px 0', display: 'flex', flexDirection: 'column'}}>
                     <Box sx={{display: 'flex'}}>
                         <Box sx={{width: '50%', borderRadius: 1}}>
-                            {dayList&&Object.keys(dayList).filter((item: any)=>(item.includes('id')&&(dayList[item]===1))).map((item: string)=>
-                            <Typography sx={{backgroundColor: '#c6efce', padding: 1, boxShadow: '0 0 3px #c6efce'}} key={item} color="success">{usersDB?.get(Number(item.slice(2)))?.first_name}</Typography>)}
+                            {dayList&&dayList.free.map((item: number)=>
+                            <Typography sx={{backgroundColor: '#c6efce', padding: 1, boxShadow: '0 0 3px #c6efce'}} key={item} color="success">{usersDB?.get(item)?.first_name}</Typography>)}
                         </Box>
                         <Box sx={{width: '50%', borderRadius: 1, textAlign: 'right'}}>
-                            {dayList&&Object.keys(dayList).filter((item: any)=>(item.includes('id')&&(dayList[item]===2))).map((item: string)=>
-                            <Typography sx={{backgroundColor: '#ffc7ce', padding: 1, boxShadow: '0 0 3px #ffc7ce'}} key={item} color="error">{usersDB?.get(Number(item.slice(2)))?.first_name}</Typography>)}
+                            {dayList&&dayList.buzy.map((item: number)=>
+                            <Typography sx={{backgroundColor: '#ffc7ce', padding: 1, boxShadow: '0 0 3px #ffc7ce'}} key={item} color="error">{usersDB?.get(item)?.first_name}</Typography>)}
                         </Box>
                     </Box>
                     <Box sx={{display: 'flex', justifyContent: 'space-evenly'}}>

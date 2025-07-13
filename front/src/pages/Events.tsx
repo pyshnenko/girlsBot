@@ -4,7 +4,7 @@ import { Box, Table, TableBody, TableRow, TableCell, Typography } from "@mui/mat
 import { Theme } from '@mui/material/styles';
 import http from "../mech/api/http";
 import api from "../mech/api/api";
-import {Calendar, CalendarAPI, EventListType} from '../types/events';
+import {Calendar, CalendarAPI, eventListTypeNew, CalendarApiNew, CalendarNew} from '../types/events';
 import DayEventsForm from "../mech/small/DayEventsForm";
 import CalendarDay from "../mech/small/CalendarDay";
 import CheckMonth from "../mech/small/CheckMonth";
@@ -16,9 +16,9 @@ interface PropsType {
 }
 
 interface APIReq {
-    calendar: CalendarAPI[],
+    calendar: CalendarApiNew[],
     users: TGFrom[],
-    events: EventListType[]
+    events: eventListTypeNew[]
 }
 
 declare global {
@@ -34,8 +34,8 @@ export default function Events(props: PropsType):React.JSX.Element {
     const tg = window?.Telegram?.WebApp;  
 
     const [activeMonth, setActiveMonth] = useState<Date>(new Date());
-    const [daysFoB, setDaysFoB] = useState<Map<number, Calendar|null>>();
-    const [eventsDB, setEventsDB] = useState<Map<number, EventListType>>();
+    const [daysFoB, setDaysFoB] = useState<Map<number, CalendarNew|null>>();
+    const [eventsDB, setEventsDB] = useState<Map<number, eventListTypeNew>>();
     const [usersDB, setUsersDB] = useState<Map<number, TGFrom>>();
     const [myId, setMyId] = useState<number>(0);
     const [activeDay, setActiveDay] = useState<number>(-1);
@@ -75,9 +75,9 @@ export default function Events(props: PropsType):React.JSX.Element {
 
     const updData = async () => {
         setLoading(true)
-        let days = new Map<number, Calendar|null>();
+        let days = new Map<number, CalendarNew|null>();
         //for (let i = 1; i<32; i++) days.set(i, null)
-        let events = new Map<number, EventListType>()
+        let events = new Map<number, eventListTypeNew>()
         let users = new Map<number, TGFrom>()
         setDaysFoB(days)
         setEventsDB(events)
@@ -86,8 +86,8 @@ export default function Events(props: PropsType):React.JSX.Element {
         const apiData:APIReq = (await api.calendar.get(Number(new Date(`${year}-${month}-01`)), Number(new Date(`${month === 12 ? year+1 : year}-${(month)%12+1}-01`))))
             .data as APIReq
         console.log(apiData)
-        apiData.calendar.forEach((item: CalendarAPI)=>{days.set((new Date(item.evtDate)).getDate(), {...item, evtDate: new Date(item.evtDate)})})
-        apiData.events.forEach((item: EventListType)=>{events.set((new Date(item.dateevent)).getDate(), item)})
+        apiData.calendar.forEach((item: CalendarApiNew)=>{days.set((new Date(item.evtDate)).getDate(), {...item, evtDate: new Date(item.evtDate)})})
+        apiData.events.forEach((item: eventListTypeNew)=>{events.set((new Date(item.dateevent)).getDate(), item)})
         apiData.users.forEach((items: TGFrom)=>{users.set(items.id, items)})
         setDaysFoB(days)
         setEventsDB(events)
@@ -115,8 +115,8 @@ export default function Events(props: PropsType):React.JSX.Element {
                     {WeakDays(activeMonth).map((item: number[])=>{
                         return (<TableRow key={`day-${item[0]}`}>
                             {item.map((days: number, index: number) => {
-                                const dayEvents: EventListType|null = eventsDB?.get(days) || null;
-                                const daysYN: Calendar|null = daysFoB?.get(days) || null;
+                                const dayEvents: eventListTypeNew|null = eventsDB?.get(days) || null;
+                                const daysYN: CalendarNew|null = daysFoB?.get(days) || null;
                                 return (
                                     <TableCell sx={{padding: 0, border: 'none'}} key={`day-${item[0]}-${index}`}>
                                         <CalendarDay {...{dayEvents, daysYN, usersDB, days, dayOff: index>=5, setActiveDay, myId}}/>

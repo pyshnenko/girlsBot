@@ -9,6 +9,11 @@ import message from '@/bot/message';
 import callback from '@/bot/callback';
 import app from '@/api';
 import { botLogger } from '@/winston/logger';
+import sequelize from '@/mech/sqlFuncs/helpers/seqInit';
+import { SQLdateListSEQ } from './mech/sqlFuncs/calendar';
+import baseURL from './consts/baseURL';
+import sql from '@/mech/sql';
+import { ActiveAttributes } from "@/types/sql";
 bot.use(session());
 
 bot.telegram.setMyCommands([
@@ -39,6 +44,9 @@ bot.on('message', async (ctx: any) => {
 
 bot.launch();
 
-bot.catch((err: any)=>{botLogger.log('error', err)});
+bot.catch((err: any)=>{console.log(err)})//botLogger.log('error', err)});
 
 app.listen(8900, ()=>{botLogger.log('info', 'start on 8900')})
+
+sql.user.check(209103348, 1).then((res: any)=>console.log(res))
+console.log(baseURL.botPages.users(209103348, 2))

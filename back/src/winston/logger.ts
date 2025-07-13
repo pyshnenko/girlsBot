@@ -8,6 +8,7 @@ export const logger = new winston.Logger({
         new winston.transports.File(winstonOptions.errfile),  
         new winston.transports.File(winstonOptions.fileDebug),  
         new winston.transports.File(winstonOptions.fileInfo),  
+        new winston.transports.File(winstonOptions.fileWarning),  
         new winston.transports.Console(winstonOptions.consoleDebug),  
         new winston.transports.Console(winstonOptions.consoleInfo),  
     ],

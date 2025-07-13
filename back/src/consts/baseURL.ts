@@ -5,7 +5,7 @@ const kudagoURL: string = "https://kudago.com/public-api/v1.4/";
 const swagger: string = 'https://spamigor.ru/demoFiles/girlsEvents/swagger.json';
 
 const createKudagoReq = (from: number, to: number): string => {
-    const uri: string = 
+    const uri: string = kudagoURL +
         `events/?fields=id,images,dates,title,short_title,place,price,description,site_url&`+
         `location=msk&`+
         `actual_since=${from}&`+

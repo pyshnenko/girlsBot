@@ -12,6 +12,11 @@ export default function ConfigCreator(mode: 'api'|'bot') {
             level: 'debug',
             filename: `${appRoot}/logs/${mode}/app.log`
         },
+        fileWarning: {
+            ...file,
+            level: 'warn',
+            filename: `${appRoot}/logs/${mode}/app.log`
+        },
         errfile: {
             ...file,
             level: 'error',
