@@ -9,7 +9,7 @@ export default async function sqdDataToCalendar(SQLData: DaysAttributes[]): Prom
         let bufObj: DaysAttributesExp|undefined = dataMap.get(item.evtDate);
         if (bufObj) {
             if (item.free) bufObj.free.push(item.tgId)
-            else bufObj.buzy.push(item.groupId)
+            else bufObj.buzy.push(item.tgId)
         } else {
             bufObj = {
                 id: item.id,

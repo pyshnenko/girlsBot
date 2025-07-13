@@ -49,7 +49,7 @@ export default function DayEventsForm(props: PropsType): React.JSX.Element {
                     <UserTablesIndicator mapTable={events} usersDB={usersDB}/>
                 </Paper>:<Typography textAlign={'center'}>Событий не планировалось</Typography>}
                 <Paper elevation={3} sx={{padding: 2, margin: '4px 0', display: 'flex', flexDirection: 'column'}}>
-                    {dayList&&<UserTablesIndicator mapTable={{buzy: dayList?.buzy, free: dayList?.free}} usersDB={usersDB}/>}
+                    {dayList&&<UserTablesIndicator mapTable={{buzy: dayList.buzy, free: dayList.free}} usersDB={usersDB}/>}
                     <Box sx={{display: 'flex', justifyContent: 'space-evenly'}}>
                         <Button 
                             onClick={()=>YoNDay(activeDay, true, activeMonth, setActiveDay)} 
