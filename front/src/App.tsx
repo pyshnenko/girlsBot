@@ -1,18 +1,12 @@
-import {BrowserRouter as Router, Routes, Route } from 'react-router';
+import { BrowserRouter as Router, Routes, Route } from 'react-router';
 import React from 'react';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import Users from './pages/Users'
-import Events from './pages/Events'
-import { Theme } from '@mui/material/styles';
+import Users from '@/pages/Users';
+import Events from '@/pages/Events';
+import { darkTheme } from '@/mech/consts';
 
-export const darkTheme: Theme = createTheme({
-  palette: {
-    mode: (window as Window & typeof globalThis & {Telegram: any}).Telegram.WebApp.colorScheme,
-  },
-});
-
-export default function App():React.JSX.Element {
+export default function App(): React.JSX.Element {
   return (
     <div>
       <ThemeProvider theme={darkTheme}>
@@ -20,10 +14,10 @@ export default function App():React.JSX.Element {
         <Router>
           <Routes>
             <Route path='vika2/users' element={<Users theme={darkTheme} />} />
-            <Route path='vika2/events' element={<Events theme={darkTheme} />} />
+            <Route path='vika2/events' element={<Events />} />
           </Routes>
         </Router>
       </ThemeProvider>
     </div>
-  )
+  );
 }
