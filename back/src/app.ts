@@ -48,9 +48,6 @@ bot.on('message', async (ctx: any) => {
 
 bot.launch();
 
-bot.catch((err: any)=>{console.log(err)})//botLogger.log('error', err)});
+bot.catch((err: any)=>{botLogger.log('error', err)});
 
 app.listen(8900, ()=>{botLogger.log('info', 'start on 8900')})
-
-//sql.user.check(209103348, 1).then((res: any)=>console.log(res))
-//console.log(testJoinSQL(bot))

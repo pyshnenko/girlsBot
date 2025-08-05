@@ -3,7 +3,6 @@ import baseURL from "@/consts/baseURL";
 type ExtType = {text: string, web_app?: {url: string}}[]
 
 export default function keyboardButtonsCreator(id: number|string, group: number|string, admin: boolean): ExtType {
-    console.log(baseURL.botPages.event(id, group))
     let firstLine: ExtType = [
             {
                 text: '📆Календарь', 

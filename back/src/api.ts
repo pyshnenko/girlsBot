@@ -53,7 +53,14 @@ app.post('/girls/api/events/:id', async (req: Request, res: Response) => {
     const code = await checkAuth(req.headers.authorization || '', true);
     if (code.code === 200) {
         if (code.id && req.body?.name && req.body?.date && req.body.place && req.body.link) {
-            const resp = await sql.event.add(code.id, req.body.name, new Date(req.body.date), req.body.place, req.body.link, Number(req.params['id']));
+            const resp = await sql.event.add(
+                code.id, 
+                req.body.name, 
+                new Date(req.body.date), 
+                req.body.place, 
+                req.body.link, 
+                Number(req.params['id'])
+            );
             res.json(resp)
         }
         else res.sendStatus(418);
@@ -65,7 +72,14 @@ app.put('/girls/api/events/:id', async (req: Request, res: Response) => {
     const code = await checkAuth(req.headers.authorization || '', true);
     if (code.code === 200) {
         if (Number(req.params['id']) && req.body?.name && req.body?.date && req.body.place && req.body.link) {
-            await sql.event.upd(req.body.id, req.body.name, new Date(req.body.date), req.body.place, req.body.link, Number(req.params['id']))
+            await sql.event.upd(
+                req.body.id, 
+                req.body.name, 
+                new Date(req.body.date), 
+                req.body.place, 
+                req.body.link, 
+                Number(req.params['id'])
+            )
             res.json(true)
         }
         else res.sendStatus(418);
@@ -77,7 +91,12 @@ app.put('/girls/api/eventsYN/:id', async (req: Request, res: Response) => {
     const code = await checkAuth(req.headers.authorization || '');
     if (code.code === 200) {
         if (req.query.req && Number(req.params['id'])) {
-            await sql.event.YNEvt(Number(req.query?.evtId), req.query?.req === 'true' ? 1 : req.query.req === 'false' ? 2 : null, code.id||0, Number(req.params['id']))
+            await sql.event.YNEvt(
+                Number(req.query?.evtId), 
+                req.query?.req === 'true' ? 1 : (req.query.req === 'false' ? 2 : null), 
+                code.id||0, 
+                Number(req.params['id'])
+            )
             res.json(true)
         }
         else res.sendStatus(418);
