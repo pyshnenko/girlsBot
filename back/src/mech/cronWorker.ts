@@ -2,6 +2,7 @@ import { Sequelize, Model, Op, fn, col } from 'sequelize';
 import sequelize from '@/mech/sqlFuncs/helpers/seqInit';
 import SQLinitModels from "@/models/init-models";
 import { Telegraf } from 'telegraf';
+import { EventModel } from '@/models/eventList';
 
 const SQLInit = new SQLinitModels(sequelize);
 const EventList = SQLInit.initEvent();
@@ -68,7 +69,7 @@ export default async function testJoinSQLFunc(bot: Telegraf, date: string) {
                 },
             ],
         })) as any[]) as ResultItem[];
-        result.map((item: ResultItem) => {
+        result.map((item: ResultItem) => { //рассылаем сообщение. порядок не важен
             bot.telegram.sendMessage(item['Aggregation.tgId']||0, `НАПОМИНАНИЕ!!!!\n`+
                 `от группы ${item['Group.name']}\n\n`+
                 `завтра: "${item.namestring}"\n`+
