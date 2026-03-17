@@ -1,8 +1,16 @@
 import 'module-alias/register';
 import * as dotenv from 'dotenv';
 dotenv.config();
+//import { SocksProxyAgent } from 'socks-proxy-agent';
+
+//import type { SocksProxyAgent as AgentType } from 'socks-proxy-agent';
+const { SocksProxyAgent } = require('socks-proxy-agent');
+const PROXY_URL = process.env.SOCKS as string;
+const agent = new SocksProxyAgent(PROXY_URL);
 import { Telegraf, session } from 'telegraf';
-const bot = new Telegraf(String(process.env.TGTOK));
+const bot = new Telegraf(String(process.env.TGTOK),{
+    telegram: { agent }
+});
 import start from '@/bot/start';
 import {Context} from '@/types/bot';
 import message from '@/bot/message';
