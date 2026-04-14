@@ -5,8 +5,14 @@ dotenv.config();
 
 //import type { SocksProxyAgent as AgentType } from 'socks-proxy-agent';
 const { SocksProxyAgent } = require('socks-proxy-agent');
-const PROXY_URL = process.env.SOCKS as string;
-const agent = new SocksProxyAgent(PROXY_URL);
+const { HttpsProxyAgent } = require('https-proxy-agent');
+const PROXY_URL = process.env.PROXY as string;
+//const agent = new SocksProxyAgent(PROXY_URL);
+const agent = new HttpsProxyAgent(PROXY_URL, {
+    keepAlive: true,
+    keepAliveMsecs: 1000,
+    timeout: 10000 
+});
 import { Telegraf, session } from 'telegraf';
 const bot = new Telegraf(String(process.env.TGTOK),{
     telegram: { agent }
